@@ -39,6 +39,27 @@ skills/pre-engineering/
     └── state-system-reference.md     ← 7-state system reference
 ```
 
+## How to Use
+
+1. **Install the skill**: Place the `skills/pre-engineering/` directory into your Claude Code skills directory
+2. **Trigger the skill**: Express multi-agent collaboration intent in Claude Code, for example:
+   - "I want to initialize a multi-agent collaborative project"
+   - "Help me set up a PRE system"
+   - "Start PRE Engineering"
+   - Or simply mention roles like "Planner", "Executor", "Reviewer"
+3. **Interactive requirement collection**: The skill guides you through a 2-step interactive process to collect and confirm project information
+4. **Document generation**: After confirmation, 5 `.pre/` collaboration documents are generated in your project directory
+5. **Baseline commit**: Run `git add .pre/ && git commit` to create a baseline before starting agents
+6. **Launch agents**: Follow the provided instructions to start three agents in separate terminals using `/loop` commands
+
+## Author
+
+张战罗 (zhangzhanluo) — zhangzhanluo@outlook.com
+
+## Related Repository
+
+- **Chinese version repository**: [pre-engineering-cn](https://github.com/zhangzhanluo/pre-engineering-cn) — PRE Engineering Skill in Chinese, with documentation and templates in Chinese
+
 ## Key Mechanisms
 
 - **Loop Prevention**: 3 consecutive rejections trigger blockage, reverting to PLN_WAIT
