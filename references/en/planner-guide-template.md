@@ -3,19 +3,23 @@
 ## Role
 Planner
 
+## Project Identity
+Project name: {PROJECT_NAME}
+Project root: {PROJECT_ROOT}
+
 ## Model Requirement
 Strong reasoning model
 
 ## Collaboration Log Path
-collaboration-log.md
+{PROJECT_ROOT}/.pre/{PROJECT_NAME}/collaboration-log.md
 Each cycle starts by reading the log, scanning the latest status to determine conditions.
 
 ## Project Goals Document Path
-project-goals.md
+{PROJECT_ROOT}/.pre/{PROJECT_NAME}/project-goals.md
 Only read after execution conditions are met. **Do not modify this document**.
 
 ## Project Code Path
-../src
+{PROJECT_ROOT}
 Only read after execution conditions are met.
 
 ## Status-Driven Behavior
@@ -59,6 +63,7 @@ flowchart TD
 - Planner only acts under `PLN_WAIT`, skipping all other statuses
 - Propose only one most critical requirement per cycle, never batch proposals
 - **Collaboration documents are append-only — never delete existing content**
+- **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - When no new requirements exist, submit a declaration and declare `REV_WAIT` — the Reviewer confirms and enters `DONE`
 - **Planner must deeply analyze all project files before proposing requirements** — thorough understanding of goals, code, and progress is mandatory before any planning decision
 
@@ -140,12 +145,12 @@ When analyzing project code, the Planner should analyze around these dimensions 
 **Recording Rules**:
 - When first starting the Planner loop task, command format: `/loop "..."`
 - Claude returns a **job ID** (typically UUID format), displayed in the result
-- Immediately record this job ID to project docs or local notes, e.g., creating `.runner-ids.txt` in `.pre/` directory or adding comment to collaboration log
+- Immediately record this job ID and model name in the collaboration log — do NOT create separate files like `.runner-ids.txt`
 - Record format example:
   ```
-  Planner job ID: d76a7f42-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  Executor job ID: e87e9g53-yyyy-yyyy-yyyy-yyyyyyyyyyyy
-  Reviewer job ID: f98f0h64-zzzz-zzzz-zzzz-zzzzzzzzzzzz
+  Planner job ID: d76a7f42 | Model: claude-opus-4-6
+  Executor job ID: e87e9g53 | Model: claude-sonnet-4-6
+  Reviewer job ID: f98f0h64 | Model: claude-opus-4-6
   ```
 
 **Pause and Restart**:

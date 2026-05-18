@@ -3,19 +3,23 @@
 ## Role
 Executor
 
+## Project Identity
+Project name: {PROJECT_NAME}
+Project root: {PROJECT_ROOT}
+
 ## Model Requirement
 Fast coding model
 
 ## Collaboration Log Path
-collaboration-log.md
+{PROJECT_ROOT}/.pre/{PROJECT_NAME}/collaboration-log.md
 Each cycle starts by reading the log, scanning the latest status to determine conditions.
 
 ## Project Goals Document Path
-project-goals.md
+{PROJECT_ROOT}/.pre/{PROJECT_NAME}/project-goals.md
 Only read after execution conditions are met. **Do not modify this document**.
 
 ## Project Code Path
-../src
+{PROJECT_ROOT}
 Only read after execution conditions are met.
 
 ## Status-Driven Behavior
@@ -57,6 +61,7 @@ flowchart TD
 - Formulate own execution plan based on Planner's requirement and approach — plan autonomously then code
 - After review rejection, status returns to `EXE_WAIT` — re-plan and re-code
 - **Collaboration documents are append-only — never delete existing content**
+- **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - **Executor must focus on implementation simplicity and avoid redundancy** — minimum code that solves the problem, nothing speculative
 
 ## Status Declaration Specification
@@ -69,7 +74,7 @@ Only the following status codes may be declared by this role:
 - `REV_WAIT` — declared when execution is complete
 
 ## Deliverable
-Deliverable files should be placed under the project code path (../src), with file paths noted in the log entry.
+Deliverable files should be placed under the project code path ({PROJECT_ROOT}), with file paths noted in the log entry.
 
 ## Output Specification
 
@@ -163,12 +168,12 @@ After completion, Executor should self-check deliverables against this checklist
 **Recording Rules**:
 - When first starting the Executor loop task, command format: `/loop "..."`
 - Claude returns a **job ID** (typically UUID format), displayed in the result
-- Immediately record this job ID to project docs or local notes, e.g., creating `.runner-ids.txt` in `.pre/` directory or adding comment to collaboration log
+- Immediately record this job ID and model name in the collaboration log — do NOT create separate files like `.runner-ids.txt`
 - Record format example:
   ```
-  Planner job ID: d76a7f42-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  Executor job ID: e87e9g53-yyyy-yyyy-yyyy-yyyyyyyyyyyy
-  Reviewer job ID: f98f0h64-zzzz-zzzz-zzzz-zzzzzzzzzzzz
+  Planner job ID: d76a7f42 | Model: claude-opus-4-6
+  Executor job ID: e87e9g53 | Model: claude-sonnet-4-6
+  Reviewer job ID: f98f0h64 | Model: claude-opus-4-6
   ```
 
 **Pause and Restart**:

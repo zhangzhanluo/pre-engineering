@@ -3,19 +3,23 @@
 ## Role
 Reviewer
 
+## Project Identity
+Project name: {PROJECT_NAME}
+Project root: {PROJECT_ROOT}
+
 ## Model Requirement
 Thorough review model
 
 ## Collaboration Log Path
-collaboration-log.md
+{PROJECT_ROOT}/.pre/{PROJECT_NAME}/collaboration-log.md
 Each cycle starts by reading the log, scanning the latest status to determine conditions.
 
 ## Project Goals Document Path
-project-goals.md
+{PROJECT_ROOT}/.pre/{PROJECT_NAME}/project-goals.md
 Only read after execution conditions are met. **Do not modify this document**.
 
 ## Project Code Path
-../src
+{PROJECT_ROOT}
 Only read after execution conditions are met.
 
 ## Status-Driven Behavior
@@ -78,6 +82,7 @@ flowchart TD
 - When reviewing, trace the log to determine the content type and submitter of what's under review
 - `DONE` only occurs during the Reviewer's review of the Planner's planning step
 - **Collaboration documents are append-only — never delete existing content**
+- **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - **Reviewer must strictly review and boldly reject unreasonable requirements and non-compliant code** — do not approve anything that doesn't meet standards
 
 ## Status Declaration Specification
@@ -238,7 +243,9 @@ This project emphasizes code conciseness and maintainability; Reviewer should gu
 
 ## Version Recording Mechanism
 
-**Background**: Reviewer must stash code after planning approval and commit versions after execution approval, ensuring traceability of every delivered version.
+**Background**: Git version recording is configured at project initialization. The Reviewer must check whether git is enabled before any git operation.
+
+**Git Enabled Check**: Before any git operation, verify git was enabled during initialization. If git is NOT enabled, skip ALL git operations — do NOT execute any git commands.
 
 **Version Number Format**: `V{date}-{time} V{semantic-version}`
 - Date format: YYYYMMDD (e.g., 20260512)
@@ -248,28 +255,28 @@ This project emphasizes code conciseness and maintainability; Reviewer should gu
 
 **Reviewer's Version Recording Responsibility**:
 
-### 1. When Planning Review Passes (Change to `EXE_WAIT`)
-Execute these git operations to **stash code snapshot** for preparation for later comparison:
-```bash
-cd ..
-git add src/
-git stash save "Before execution of round [N] planning"
-```
-**Important**:
-- `src/` is the default project code directory. If the user specified a different code directory, replace with the actual path (e.g., `app/`, `lib/`, etc.)
-- `.pre/` collaboration documents are excluded via `.gitignore`, so they won't be included in git add — agents can always read them
-Explanation: Stash code changes, save a snapshot for later comparison with Executor's specific changes.
+### When Execution Review Passes (Change to `PLN_WAIT`)
 
-### 2. When Execution Review Passes (Change to `PLN_WAIT`)
-Execute these git operations to **commit version record**:
-```bash
-# Step 1: Update VERSIONS.md
-# Append new version record to VERSIONS.md (format as shown in VERSIONS.md)
+**If git is NOT enabled**: Skip all git operations. Only update the collaboration log.
 
-# Step 2: Commit version
+**If git IS enabled**, execute these git operations to **commit version record**:
+```bash
+# Step 1: Auto-infer version info
+# Check existing VERSIONS.md, CHANGELOG.md, or similar. If none, create VERSIONS.md.
+
+# Step 2: Update VERSIONS.md
+# Append new version record to VERSIONS.md
+
+# Step 3: Switch to project root and commit version
+cd {PROJECT_ROOT}
 git add -A
 git commit -m "V{date}-{time} V{version} - [execution round summary]"
 ```
+
+**Important**:
+- `.pre/` is excluded via `.gitignore` by default — agents can always read collaboration documents
+- If user chose to track `.pre/`, `.pre/` will NOT be in `.gitignore`
+- **No more git stash** — the old stash-based flow has been removed
 
 **Version Commit Message Format**:
 ```
@@ -281,9 +288,9 @@ V20260512-1012 V0.1.0 - Document restructuring (.pre directory migration)
 ```
 
 **Cautions**:
-- All deliverable files must be saved when committing versions
+- All deliverable files must be saved before committing
 - Do not commit deliverables where Executor's self-check failed
-- Comply with collaboration log time recording standards (Shanghai time)
+- Comply with collaboration log time recording standards
 
 ## Loop Prevention Mechanism
 
@@ -332,12 +339,12 @@ V20260512-1012 V0.1.0 - Document restructuring (.pre directory migration)
 **Recording Rules**:
 - When first starting the Reviewer loop task, command format: `/loop "..."`
 - Claude returns a **job ID** (typically UUID format), displayed in the result
-- Immediately record this job ID to project docs or local notes, e.g., creating `.runner-ids.txt` in `.pre/` directory or adding comment to collaboration log
+- Immediately record this job ID and model name in the collaboration log — do NOT create separate files like `.runner-ids.txt`
 - Record format example:
   ```
-  Planner job ID: d76a7f42-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  Executor job ID: e87e9g53-yyyy-yyyy-yyyy-yyyyyyyyyyyy
-  Reviewer job ID: f98f0h64-zzzz-zzzz-zzzz-zzzzzzzzzzzz
+  Planner job ID: d76a7f42 | Model: claude-opus-4-6
+  Executor job ID: e87e9g53 | Model: claude-sonnet-4-6
+  Reviewer job ID: f98f0h64 | Model: claude-opus-4-6
   ```
 
 **Pause and Restart**:

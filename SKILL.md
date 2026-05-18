@@ -1,6 +1,6 @@
 ---
 name: pre-engineering
-description: "PRE Engineering — Initialize a PRE (Plan-Review-Execute) multi-agent collaborative project. TRIGGER when: user wants to initialize a multi-agent collaborative project, mentions PRE system, PRE Engineering, wants to set up collaborative agents, wants to initialize project documents for agent collaboration, asks how to make multiple AI roles collaborate on a project, mentions Plan-Review-Execute, wants to use a collaboration log to drive multi-agent work, wants to create Planner/Executor/Reviewer guide documents, wants to start a PRE collaboration workflow, or expresses multi-agent collaboration intent without explicitly mentioning PRE."
+description: "PRE Engineering — Initialize a PRE (Plan-Review-Execute) multi-agent collaborative project framework. TRIGGER when: user wants to initialize a multi-agent collaborative project, mentions PRE system, PRE Engineering, wants to set up collaborative agents, wants to initialize project documents for agent collaboration, asks how to make multiple AI roles collaborate on a project, mentions Plan-Review-Execute, wants to use a collaboration log to drive multi-agent work, wants to create Planner/Executor/Reviewer guide documents, wants to start a PRE collaboration workflow, or expresses multi-agent collaboration intent without explicitly mentioning PRE."
 ---
 
 # PRE Engineering
@@ -11,59 +11,62 @@ Guide the user to describe project requirements, interactively refine them, conf
 
 The PRE system operates through three agent roles — Planner, Executor, and Reviewer — using the collaboration log as the sole coordination medium, the project goals document as the driving core, and the project code as the decision foundation, enabling autonomous collaboration and continuous operation among agents.
 
-This skill sets up the PRE collaboration framework for the user's project: collects project requirements through interactive Q&A, generates 5 collaboration documents upon confirmation, and provides instructions to launch the three agents. PRE is not a standalone project — it's a framework that adds multi-agent collaboration capabilities to an existing project.
+This skill sets up the PRE collaboration framework for the user's project. PRE is not a standalone project — it's a framework that adds multi-agent collaboration capabilities to an existing project.
 
-## Interactive Requirements Collection
+## Installation
 
-Use 2 steps to interact with the user, minimizing confirmation requests. During collection, proactively help refine requirements — remove duplicates, normalize descriptions, fill in missing technical constraints, automatically infer information.
+**Recommended**: Use `npx skills add` to install:
 
-### Step 1: Collect All Requirements At Once
-
-Single AskUserQuestion collects all: project overview, features, technical constraints, special notes. Auto-scan project directory to infer available information, reducing manual input.
-
-```json
-{
-  "questions": [{
-    "header": "Project Requirements",
-    "multiSelect": false,
-    "options": [
-      {"label": "Enter manually", "description": "Provide all project information directly (overview, features, constraints, notes)"},
-      {"label": "Infer from existing docs", "description": "Auto-scan project directory (README, package.json, etc.) and infer information"}
-    ],
-    "question": "Please provide project information. You can describe separately:\n1. Project name and overview (1-2 sentences)\n2. Features (one per line)\n3. Technical constraints (tech stack, architecture, quality requirements) — or say 'no constraints'\n4. Special notes (third-party integrations, compliance, etc.) — or say 'none'\n\nExample:\nProject: E-commerce backend\nOverview: Build a backend supporting product management, order processing, and user auth\nFeatures: User registration/login, product lists, order management, payment integration\nConstraints: Python + FastAPI, PostgreSQL, RESTful API, ≥80% unit test coverage\nNotes: Payment integrates third-party API, PCI compliance required"
-  }]
-}
+```bash
+npx skills add zhangzhanluo/pre-engineering
 ```
+
+Or manually: place the `skills/pre-engineering/` directory into your AI tool's skills directory.
+
+## Step 0: Language Detection & Confirmation
+
+Before collecting requirements, detect the user's language and confirm:
+
+1. **Detection rule**: If user's input contains Chinese characters → default to `zh`; otherwise → default to `en`
+2. **Confirm with user** — present an interactive prompt offering language options.
+
+Set `lang` variable: `zh` or `en`. This determines template path and document file names:
+
+| Document | `lang=zh` | `lang=en` |
+|----------|-----------|-----------|
+| Project goals | 项目目标.md | project-goals.md |
+| Collaboration log | 协作日志.md | collaboration-log.md |
+| Planner guide | 规划者指导.md | planner-guide.md |
+| Executor guide | 执行者指导.md | executor-guide.md |
+| Reviewer guide | 审核者指导.md | reviewer-guide.md |
+| Template dir | references/zh/ | references/en/ |
+
+## Step 1: Collect Project Name + All Requirements
+
+First collect a project name (used as subdirectory under `.pre/{project_name}/` for multi-project support), then collect all requirements.
+
+Collect project information via an interactive prompt: project name, overview, features, technical constraints, special notes.
+
+Set `project_name` variable from user input. All documents will be placed in `.pre/{project_name}/`.
 
 **Information Inference Rules**:
 - Auto-scan README.md, design docs, package.json, requirements.txt, etc. to extract overview and tech stack
-- If project directory has structured requirements (e.g., SPEC.md), extract feature list directly
+- If project directory has structured requirements, extract feature list directly
 - Present inferred results to user for confirmation or modification
 
-After collection, refine requirements: remove duplicates, normalize descriptions, supplement missing dimensions (user management, error handling, etc.).
+After collection, refine requirements: remove duplicates, normalize descriptions, supplement missing dimensions.
 
-### Step 2: Confirm Draft & Generate Documents
+## Step 2: Confirm Draft & Generate Documents
 
-Synthesize collected information into a project goals document draft and present to user for final confirmation. Upon confirmation, generate all 5 core documents.
+Synthesize collected information into a project goals document draft, present to user for final confirmation. Upon confirmation, generate all 5 core documents.
 
-```json
-{
-  "questions": [{
-    "header": "Confirm & Generate",
-    "multiSelect": false,
-    "options": [
-      {"label": "Confirm, generate all docs", "description": "Satisfied with the project goals document — start generating all 5 project documents"},
-      {"label": "Needs revision", "description": "Not satisfied with some content — adjust it"}
-    ],
-    "question": "Here is the project goals document draft generated from your description:\n\n{Project goals draft content}\n\nAre you satisfied with it?"
-  }]
-}
-```
+Confirm that user is satisfied with the project goals document before proceeding to document generation.
 
-If user selects "Needs revision", ask what to adjust, modify the draft, and re-present until confirmed.
+## Project Goals Document
 
-Upon confirmation, write to `.pre/project-goals.md` in the project directory with the following format:
+Write to `.pre/{project_name}/{goals_file}` upon confirmation.
 
+For English projects:
 ```markdown
 # Project Goals
 
@@ -75,162 +78,127 @@ Upon confirmation, write to `.pre/project-goals.md` in the project directory wit
 
 ## Technical Constraints
 - {Technical constraints provided by the user, one per line}
-- {If the user selected 'No special constraints', write: The Planner and Executor may choose an appropriate tech stack and architecture based on the project nature}
 
 ## Notes
 - {Special notes provided by the user, one per line}
-- {If the user selected 'No notes', write: No special requirements at this time}
 ```
 
-**Important**: The project goals document does not include "current status" or "priority" fields. Project status is managed by the collaboration log; priority is determined by the Planner. Agents can only read this document — they must not modify it.
+For Chinese projects, adapt the section titles and content to Chinese while maintaining the same structure.
+
+**Important**: Agents can only read this document — they must not modify it.
 
 ## Collaboration Log Initial Entry
 
-Upon confirmation, write to `.pre/collaboration-log.md` in the project directory, creating the initial entry to drive the Planner to begin the first planning cycle:
+Write to `.pre/{project_name}/{log_file}` creating the initial entry with proper language (Chinese for lang=zh, English for lang=en).
 
-```markdown
-# Collaboration Log
-
-## [{current_datetime}] Human — Project Launch
-- Initialized project, Planner please begin first planning cycle
-- Status: PLN_WAIT
-```
-
-Time format uses `[YYYY-MM-DD HH:MM]`, must execute `date +"%Y-%m-%d %H:%M"` to get the current system time — never fill in time from memory. **Timezone confirmation**: During initialization, confirm with the user the timezone to use (e.g., Shanghai UTC+8, Tokyo UTC+9, etc.). After confirmation, all log entries must consistently use that timezone, and the confirmed timezone should be recorded in the project goals document's Notes section.
+Time format: `[YYYY-MM-DD HH:MM]`, must execute `date +"%Y-%m-%d %H:%M"`. **Timezone**: Confirm with user during initialization, record in project goals Notes.
 
 ## Agent Guide Document Generation
 
-Upon confirmation, generate three agent guide documents. Each document is generated from the corresponding template file:
+Generate three agent guide documents from templates in `references/{lang}/`:
 
-1. Read `references/planner-guide-template.md` → fill path placeholders → write to `.pre/planner-guide.md`
-2. Read `references/executor-guide-template.md` → fill path placeholders → write to `.pre/executor-guide.md`
-3. Read `references/reviewer-guide-template.md` → fill path placeholders → write to `.pre/reviewer-guide.md`
-
-**Placeholder note**:
-
-Templates already use default path values (collaboration-log.md, project-goals.md, ../src). If the user specifies a different code directory, replace all occurrences of `../src` in the template with the user-specified path during generation.
+| Guide | Template (`lang=zh`) | Template (`lang=en`) |
+|-------|---------------------|---------------------|
+| Planner | references/zh/规划者指导模板.md | references/en/planner-guide-template.md |
+| Executor | references/zh/执行者指导模板.md | references/en/executor-guide-template.md |
+| Reviewer | references/zh/审核者指导模板.md | references/en/reviewer-guide-template.md |
 
 **Generation steps**:
-1. Use the Read tool to read the corresponding template file
-2. If the user specified a non-default code directory, replace `../src` with the user-specified path
-3. Use the Write tool to write the content to the corresponding guide document in the `.pre/` subdirectory
-
-**File existence check**: Before generating, check whether files with the same name already exist in the project directory. If they exist, prompt the user to choose overwrite or skip — do not auto-overwrite.
+1. Read the corresponding template file from `references/{lang}/`
+2. Replace all placeholders with project-specific values:
+   - `{PROJECT_NAME}` → project name collected in Step 1
+   - `{PROJECT_ROOT}` → absolute path to the project root directory (e.g., `/home/user/my-project`)
+   - If user specified a non-default code directory (e.g., `src/`), additionally replace `{PROJECT_ROOT}` in the **Project Code Path** section only with `{PROJECT_ROOT}/{custom_dir}` (e.g., `{PROJECT_ROOT}/src`)
+3. Write to the corresponding guide document in `.pre/{project_name}/`
+4. Check for existing files before overwriting
 
 ## Startup Instructions
 
-After all documents are generated, present the startup instructions to the user:
+After all documents are generated, present startup instructions in the selected language (Chinese for lang=zh, English for lang=en).
 
----
+### For English Projects (lang=en):
 
-**PRE Engineering initialization complete!** The following files have been generated:
+**PRE Engineering initialization complete!** Files generated:
 
-- `.pre/project-goals.md` — Project requirements document (only humans can modify)
-- `.pre/collaboration-log.md` — Initial PLN_WAIT entry written
-- `.pre/planner-guide.md` — Planner role guide document
-- `.pre/executor-guide.md` — Executor role guide document
-- `.pre/reviewer-guide.md` — Reviewer role guide document
+- `.pre/{project_name}/{goals_file}` — Project requirements (only humans can modify)
+- `.pre/{project_name}/{log_file}` — Initial PLN_WAIT entry
+- `.pre/{project_name}/{planner_guide}` — Planner guide
+- `.pre/{project_name}/{executor_guide}` — Executor guide
+- `.pre/{project_name}/{reviewer_guide}` — Reviewer guide
 
-**IMPORTANT: Commit baseline before starting agents**
+**IMPORTANT: Git baseline setup**
 
-During subsequent reviews, the Reviewer will execute `git stash save` to stash code changes. If the `.pre/` collaboration documents are not committed, stash will sweep them away, causing agents to lose access to their files. **You must commit the generated documents as a baseline before starting the three agents**:
+`.pre/` is excluded via `.gitignore` by default. This ensures agents can always access collaboration documents on disk. Two options:
 
+- **Default**: `.pre/` excluded from git — collaboration documents are local-only, agents access them directly on disk. No baseline commit needed.
+- **Track in git**: If user wants to version the collaboration documents, remove `.pre/` from `.gitignore` and commit baseline:
 ```bash
 cd {project_directory_path}
-git add .pre/
+git add .pre/{project_name}/
 git commit -m "PRE initialization: collaboration documents baseline"
 ```
 
-**Startup steps** (requires three separate terminals):
+**Launch agents** (3 separate terminals/sessions):
 
-1. **Terminal 1 — Planner** (recommended: strong reasoning model, e.g. claude-opus-4-6):
-   ```
-   cd {project_directory_path}/pre
-   claude --model claude-opus-4-6
-   ```
-   Then enter:
-   ```
-   /loop "Read planner-guide.md and follow its instructions as the Planner role. Each cycle starts by reading collaboration-log.md to check the latest status."
-   ```
+1. **Planner** (strong reasoning model):
+   Run a loop task with your AI agent tool: `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{planner_guide} and follow its instructions as the Planner role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
 
-2. **Terminal 2 — Executor** (recommended: fast coding model, e.g. claude-sonnet-4-6):
-   ```
-   cd {project_directory_path}/pre
-   claude --model claude-sonnet-4-6
-   ```
-   Then enter:
-   ```
-   /loop "Read executor-guide.md and follow its instructions as the Executor role. Each cycle starts by reading collaboration-log.md to check the latest status."
-   ```
+2. **Executor** (fast coding model):
+   Run a loop task with your AI agent tool: `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{executor_guide} and follow its instructions as the Executor role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
 
-3. **Terminal 3 — Reviewer** (recommended: thorough review model, e.g. claude-opus-4-6):
-   ```
-   cd {project_directory_path}/pre
-   claude --model claude-opus-4-6
-   ```
-   Then enter:
-   ```
-   /loop "Read reviewer-guide.md and follow its instructions as the Reviewer role. Each cycle starts by reading collaboration-log.md to check the latest status."
-   ```
+3. **Reviewer** (thorough review model):
+   Run a loop task with your AI agent tool: `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{reviewer_guide} and follow its instructions as the Reviewer role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
 
-**IMPORTANT: Record Loop Task Job IDs**
+### For Chinese Projects (lang=zh):
 
-After each `/loop` command is started, Claude returns a **job ID** (typically UUID format) displayed in the result. **Record all three job IDs immediately**:
-
-```
-Planner job ID:   <copy from planner startup result>
-Executor job ID:  <copy from executor startup result>
-Reviewer job ID:  <copy from reviewer startup result>
-```
-
-Suggested save locations:
-- `.runner-ids.txt` file in project root, or
-- Comment in the collaboration log header, or
-- Local notes/document
-
-**Usage**:
-- **Pause single agent**: Execute `ScheduleCancel <job-id>` or provide job ID to cancel that loop
-- **Pause all agents**: Cancel all three job IDs
-- **Restart**: Re-run `/loop` command to generate new job IDs
-
-See the "Loop Task Process Management" section in each agent's guide document for details.
-
-**Project control methods**:
-
-| Control intent | Operation | Agent response |
-|---------------|-----------|----------------|
-| Adjust direction | Modify feature descriptions or technical constraints in `.pre/project-goals.md` | Planner adjusts the plan in the next cycle based on the new direction |
-| Reduce scope | Delete feature requirements in `.pre/project-goals.md` | Planner detects no requirements during PLN_WAIT and submits a "no new requirements" declaration |
-| Add requirements | Add new items to feature requirements in `.pre/project-goals.md` | Planner identifies new requirements in the next cycle and proposes them |
-| Pause project | Write "currently paused" in the Notes section of `.pre/project-goals.md` | Planner recognizes the pause marker during PLN_WAIT and does not act |
-
-**DONE achievement condition**: Planner declares no new requirements → Reviewer confirms all project goals have been delivered → Reviewer writes DONE → Project complete.
+Present equivalent instructions in Chinese, with file names and paths adapted accordingly. Refer to references/zh/ template files for localized content.
 
 ---
 
-## Loop Prevention (Deadlock Protection)
+**Record Loop Task IDs**: Each `/loop` returns a job ID. Agents will automatically record their job ID and model name in the collaboration log when they start their first cycle. Users can verify job IDs by checking the collaboration log.
 
-The PRE system has a built-in loop prevention mechanism to prevent infinite retry cycles when the Executor keeps getting rejected:
+**Project control**:
 
-- **Blocking rule**: When the Reviewer rejects the Executor's submission for the same requirement **3 consecutive times**, the Reviewer marks a loop block and reverts the status to `PLN_WAIT`
-- **Planner's response**: Upon receiving a loop block notice, the Planner should re-split or adjust the requirement proposal and submit a new plan
-- **Executor's response**: Identify loop blockage marker in the log, stop retrying, wait for Planner's new requirements
-- **Rejection count method**: Reviewer traces the log from the Planner's requirement submission entry, counting each rejection; when count reaches 3, mark blockage
+| Control | Operation | Agent response |
+|----------|-----------|----------------|
+| Adjust direction | Modify `.pre/{project_name}/{goals_file}` | Planner adjusts plan next cycle |
+| Reduce scope | Delete features in `.pre/{project_name}/{goals_file}` | Planner submits "no new requirements" |
+| Add requirements | Add items to `.pre/{project_name}/{goals_file}` | Planner identifies and proposes |
+| Pause project | Write "currently paused" in Notes | Planner recognizes and skips |
+
+**DONE condition**: Planner declares no new requirements → Reviewer confirms → DONE.
+
+---
+
+## Loop Prevention
+
+- **Blocking rule**: 3 consecutive rejections on same requirement → loop blockage, revert to `PLN_WAIT`
+- **Planner**: Re-split or adjust requirement
+- **Executor**: Stop retrying, wait for new requirements
 
 ## Version Recording Mechanism
 
-The Reviewer is responsible for version management after each review cycle to ensure every delivered version is traceable:
+**Git confirmation at initialization**:
 
-- **When planning review passes**: Execute `git add <code_dir> && git stash save` to save a code snapshot (default src/, `.pre/` excluded via .gitignore)
-- **When execution review passes**: Update `VERSIONS.md` and execute `git commit -m "V{date}-{time} V{version} - [description]"`
-- **Version format**: `V{date}-{time} V{semantic-version}`（e.g., V20260511-2325 V0.0.6）
-- **VERSIONS.md format**: Each record contains version number, change time, change summary (within 5 lines)
+After Step 2 confirmation, before generating documents, ask user whether to enable git version recording.
+
+**If disabled**: Skip ALL git operations throughout the entire workflow.
+
+**If enabled**:
+1. Confirm `.pre/{project_name}/` is in `.gitignore` (default: excluded). If user wants to track `.pre/{project_name}/`, do NOT add it to `.gitignore`.
+2. Before starting agents, commit current project state as baseline.
+3. After each execution review passes:
+   - Auto-infer version info from project (check existing VERSIONS.md, CHANGELOG.md, or similar). If none found, create `VERSIONS.md`.
+   - Commit directly with version information in commit message.
+4. **Version format**: `V{date}-{time} V{semantic-version}` (e.g., V20260514-1637 V0.3.4)
+
+**Key change from old mechanism**: No more stash — direct commit after execution review only. Planning review no longer triggers any git operation.
 
 ---
 
 ## Safety and Integrity Checks
 
-1. **Do not overwrite existing files**: Check for existing files with the same name before generating documents; if they exist, prompt the user to choose overwrite or skip
-2. **Collaboration log is append-only**: If the collaboration log already exists with entries, append new entries rather than rewriting the entire file
-3. **Project goals document protection**: The generated project goals document is clearly marked "only humans can modify" — agents must not modify this file
-4. **Code directory creation**: If the user-specified code directory (default `src/`) does not exist, create an empty directory
+1. **Do not overwrite existing files**
+2. **Collaboration log is append-only**
+3. **Project goals document protected**
+4. **Code directory creation**: Create default code directory if not exists
