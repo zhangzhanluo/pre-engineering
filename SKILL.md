@@ -1,27 +1,19 @@
 ---
 name: pre-engineering
-description: "PRE Engineering — Initialize a PRE (Plan-Review-Execute) multi-agent collaborative project framework. TRIGGER when: user wants to initialize a multi-agent collaborative project, mentions PRE system, PRE Engineering, wants to set up collaborative agents, wants to initialize project documents for agent collaboration, asks how to make multiple AI roles collaborate on a project, mentions Plan-Review-Execute, wants to use a collaboration log to drive multi-agent work, wants to create Planner/Executor/Reviewer guide documents, wants to start a PRE collaboration workflow, or expresses multi-agent collaboration intent without explicitly mentioning PRE."
+description: "PRE Engineering — Set up a Plan-Review-Execute multi-agent collaborative framework for any project. Three AI agent roles (Planner, Executor, Reviewer) work together through a shared collaboration log to continuously deliver project goals. TRIGGER when: user wants multiple AI agents to collaborate on a project, mentions PRE system, PRE Engineering, Plan-Review-Execute, wants to divide AI work into planning/execution/review roles, wants agents to coordinate via a shared log, wants to set up Planner/Executor/Reviewer guide documents, wants to start a loop-driven multi-agent workflow, asks how to make AI roles work together, mentions collaborative agents or multi-agent workflow, says things like 'let AI help me divide work', 'I want different AI roles to collaborate', 'set up a collaborative project', or expresses any multi-agent or team-of-AIs intent — even without explicitly mentioning PRE."
 ---
 
 # PRE Engineering
 
-Guide the user to describe project requirements, interactively refine them, confirm and output project documents, then provide startup instructions.
+Set up a multi-agent collaborative framework where three AI roles — Planner, Executor, Reviewer — coordinate through a shared collaboration log to continuously deliver project goals.
 
-## Overview
+PRE is not a standalone project — it's a framework you add to an existing project to enable multi-agent collaboration. Think of it as giving your project a "team of AI workers" with clear role divisions and a shared communication channel.
 
-The PRE system operates through three agent roles — Planner, Executor, and Reviewer — using the collaboration log as the sole coordination medium, the project goals document as the driving core, and the project code as the decision foundation, enabling autonomous collaboration and continuous operation among agents.
+## Installation & Updating
 
-This skill sets up the PRE collaboration framework for the user's project. PRE is not a standalone project — it's a framework that adds multi-agent collaboration capabilities to an existing project.
+**Install**: `npx skills add zhangzhanluo/pre-engineering` (recommended) or manually place `skills/pre-engineering/` into your AI tool's skills directory.
 
-## Installation
-
-**Recommended**: Use `npx skills add` to install:
-
-```bash
-npx skills add zhangzhanluo/pre-engineering
-```
-
-Or manually: place the `skills/pre-engineering/` directory into your AI tool's skills directory.
+**Update**: Re-run the install command to get the latest version. Existing `.pre/{project_name}/` collaboration documents in your projects are unaffected — they're separate from the skill templates.
 
 ## Step 0: Language Detection & Confirmation
 
@@ -50,7 +42,7 @@ Collect project information via an interactive prompt: project name, overview, f
 Set `project_name` variable from user input. All documents will be placed in `.pre/{project_name}/`.
 
 **Information Inference Rules**:
-- Auto-scan README.md, design docs, package.json, requirements.txt, etc. to extract overview and tech stack
+- Auto-scan README.md, design docs, package.json, requirements.txt, etc. to extract overview and tech stack — this saves the user from repeating what's already in their project
 - If project directory has structured requirements, extract feature list directly
 - Present inferred results to user for confirmation or modification
 
@@ -60,7 +52,7 @@ After collection, refine requirements: remove duplicates, normalize descriptions
 
 Synthesize collected information into a project goals document draft, present to user for final confirmation. Upon confirmation, generate all 5 core documents.
 
-Confirm that user is satisfied with the project goals document before proceeding to document generation.
+The user must be satisfied with the project goals document before proceeding — this document drives all subsequent agent work, so getting it right matters.
 
 ## Project Goals Document
 
@@ -85,13 +77,15 @@ For English projects:
 
 For Chinese projects, adapt the section titles and content to Chinese while maintaining the same structure.
 
-**Important**: Agents can only read this document — they must not modify it.
+**Important**: This document is the driving core of the entire project. Agents can only read it — they must not modify it. Only the human user can change project direction by editing this file.
 
 ## Collaboration Log Initial Entry
 
 Write to `.pre/{project_name}/{log_file}` creating the initial entry with proper language (Chinese for lang=zh, English for lang=en).
 
 Time format: `[YYYY-MM-DD HH:MM]`, must execute `date +"%Y-%m-%d %H:%M"`. **Timezone**: Confirm with user during initialization, record in project goals Notes.
+
+The initial entry declares `PLN_WAIT` status, which triggers the Planner to start the first planning cycle — this is how the project begins.
 
 ## Agent Guide Document Generation
 
@@ -141,13 +135,13 @@ git commit -m "PRE initialization: collaboration documents baseline"
 **Launch agents** (3 separate terminals/sessions):
 
 1. **Planner** (strong reasoning model):
-   Run a loop task with your AI agent tool: `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{planner_guide} and follow its instructions as the Planner role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
+   `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{planner_guide} and follow its instructions as the Planner role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
 
 2. **Executor** (fast coding model):
-   Run a loop task with your AI agent tool: `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{executor_guide} and follow its instructions as the Executor role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
+   `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{executor_guide} and follow its instructions as the Executor role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
 
 3. **Reviewer** (thorough review model):
-   Run a loop task with your AI agent tool: `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{reviewer_guide} and follow its instructions as the Reviewer role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
+   `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{reviewer_guide} and follow its instructions as the Reviewer role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
 
 ### For Chinese Projects (lang=zh):
 

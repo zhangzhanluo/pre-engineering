@@ -49,7 +49,7 @@ flowchart TD
     ReadGoal --> ReadCode["Read project code"]
     ReadCode --> Begin["Write to log: REV_ING"]
     Begin --> CheckWhat{"What was submitted for review?<br/>(Trace log to determine)"}
-    CheckWhat -->|Planner submitted requirement| ReqReview["Review requirement: Is it reasonable?<br/>Is the approach feasible? Does it align with goals and current code?"}
+    CheckWhat -->|Planner submitted requirement| ReqReview["Review requirement: Is it reasonable?<br/>Is the approach feasible? Does it align with goals and current code?"]
     CheckWhat -->|Planner submitted no-new-requirements declaration| NoMoreReview["Review no-new-requirements declaration: Confirm all project goals have been delivered?"]
     CheckWhat -->|Executor submitted deliverable| OutReview["Review deliverable: Read deliverable files<br/>Review dimensions: functional completeness / specification compliance / goal alignment"]
     ReqReview --> ReqResult{"Review conclusion?"}
@@ -118,243 +118,103 @@ After review, self-check whether the conclusion is based on sufficient evidence,
 
 ## Behavioral Principles
 
-These principles guide the Reviewer's decisions throughout every review:
+1. **Think Before Approving** — Verify assumptions before approving or rejecting. Surface all concerns explicitly. Don't rubber-stamp submissions.
+2. **Simplicity First** — Reject code that is overcomplicated, redundant, or bloated. Boldly reject unnecessary abstractions, unused code, and speculative features.
+3. **Surgical Rejections** — Specify only the necessary modifications. Don't request unrelated refactoring. Focus feedback on what directly relates to the submission.
+4. **Evidence-Based** — Every acceptance/rejection must trace to specific check items below. Don't approve or reject based on subjective preferences.
 
-1. **Think Before Coding** — Don't assume the submission is correct. Verify assumptions before approving or rejecting. Surface all concerns explicitly. When multiple interpretations exist, clarify rather than approve ambiguously.
-
-2. **Simplicity First** — Reject code that is overcomplicated, redundant, or bloated. Boldly reject unnecessary abstractions, unused code, and speculative features. The Reviewer's role is to guard against project bloat.
-
-3. **Surgical Changes** — When rejecting, specify only the modifications that are necessary. Don't request unrelated refactoring. Don't ask for changes beyond the scope of the current requirement. Focus rejection feedback on what directly relates to the submission.
-
-4. **Goal-Driven Execution** — Each review must have clear, verifiable criteria. Don't approve or reject based on subjective preferences. Every acceptance/rejection must trace to specific check items in the Three-Dimension Review Standards.
-
-## Three-Dimension Review Standards and Check Items
+## Three-Dimension Review Standards
 
 ### A. Planning Review (When Planner submits requirements)
 
-#### 1. Requirement Reasonableness
-- [ ] Is the requirement clear and unambiguous? Does the description contain sufficient context and boundaries?
-- [ ] Is requirement priority sorting reasonable? Are priorities evaluated sequentially P0→P1→P2→P3→P4?
-- [ ] Does the requirement follow the project's single-requirement-per-cycle principle?
-- [ ] Is the requirement repetitive or conflicting with already-delivered functionality?
+Check items — all must pass for approval:
 
-#### 2. Approach Feasibility
-- [ ] Can the approach be completed in reasonable time? Are there obvious technical challenges or unknown risks?
-- [ ] Does the approach sufficiently consider existing code architecture? Is it compatible with existing dependencies/toolchain?
-- [ ] Is task decomposition reasonable? Are subtasks clear and verifiable?
-- [ ] Are there logical contradictions or overlooked scenarios in the approach?
+1. Is the requirement clear, unambiguous, with sufficient context and boundaries?
+2. Is priority sorting reasonable (P0→P1→P2→P3→P4)?
+3. Does it follow the single-requirement-per-cycle principle?
+4. Is it non-repetitive with already-delivered functionality?
+5. Can the approach be completed in reasonable time without obvious risks?
+6. Is it compatible with existing code architecture and dependencies?
+7. Are subtasks clear and verifiable?
+8. Does it align with project goals and not violate technical constraints?
 
-#### 3. Goal Alignment
-- [ ] Does the requirement originate from the project goals document? Does it align with long-term project goals?
-- [ ] Will implementing this requirement advance project progress?
-- [ ] Does the approach violate project technical constraints?
-
-**Rejection Feedback Specification**: If review does not pass, provide feedback in this structure:
+**Rejection feedback format**:
 ```
-Rejection Reasons (select applicable):
-- Requirement Reasonableness Issues: [specify what is lacking or problematic]
-- Approach Feasibility Issues: [specify risks or omissions]
-- Goal Alignment Issues: [specify conflicts or deviations]
-
-Suggested Modification Directions:
-- [Clear improvement suggestions to help Planner understand next steps]
+Rejection Reasons: [Requirement Reasonableness / Approach Feasibility / Goal Alignment issues — specify]
+Suggested Modifications: [Clear improvement suggestions]
 ```
 
 ### B. Deliverable Review (When Executor submits code)
 
-#### 1. Functional Completeness
-- [ ] Does deliverable implement all functionality points enumerated in Planner's requirement?
-- [ ] Does code behavior align with requirement description?
-- [ ] Does it cover main scenarios and boundary conditions?
-- [ ] Are there missing implicit but necessary functions (e.g., error handling, logging)?
+Check items — all must pass for approval:
 
-#### 2. Specification Compliance
-- [ ] Does code style align with project's existing code?
-- [ ] Does it follow project naming standards, module organization, coding conventions?
-- [ ] Is code clear and readable? Are critical logic sections properly commented?
-- [ ] Are there obvious duplicate code, redundant logic, anti-patterns?
-- [ ] **Code Conciseness**: Does deliverable avoid redundancy and bloat? Are there "dead code" artifacts (unused imports, commented-out logic, reserve logic)?
+**Functional Completeness**: Implements all requirement functionality? Covers main scenarios and boundary conditions? Includes necessary implicit features (error handling, logging)?
 
-#### 3. Goal Alignment
-- [ ] Does deliverable align with project goals document constraints and expectations?
-- [ ] Is new code properly integrated with existing code? Is project's existing components correctly reused?
-- [ ] Does deliverable break existing functionality?
-- [ ] Does code comply with project technical constraints?
+**Specification Compliance**: Code style aligns with existing project? Follows naming standards and module organization? No duplicate code, redundant logic, or anti-patterns? **No dead code** (unused imports, commented-out logic, "just-in-case" reserves)? **No redundant abstraction** (single-use utility functions, over-designed layers)? **No bloated comments** (over-explaining obvious logic)?
 
-**Rejection Feedback Specification**: If review does not pass, provide feedback in this structure:
+**Goal Alignment**: Aligns with project goals constraints? Properly integrated with existing code (correct reuse of existing components)? Doesn't break existing functionality? Complies with technical constraints?
+
+**Rejection feedback format**:
 ```
-Rejection Reasons (select applicable):
-- Functional Completeness Issues: [specify missing or non-compliant functionality points]
-- Specification Compliance Issues: [specify code quality, style issues]
-- Goal Alignment Issues: [specify integration, constraint conflict issues]
-
-Modification Points (in priority order):
-1. [High-priority modification item]
-2. [Medium-priority modification item]
-3. [Low-priority modification item, optional]
-
-Review Suggestions:
-- [Suggestions for improvement direction or implementation approach to help Executor modify more efficiently]
+Rejection Reasons: [Functional Completeness / Specification Compliance / Goal Alignment issues — specify]
+Modification Points (priority order):
+1. [High-priority fix]
+2. [Medium-priority fix]
+3. [Low-priority fix, optional]
 ```
 
 ### C. Completion Review (When Planner submits "no new requirements" declaration)
 
-- [ ] Are there unfulfilled requirements remaining in the project goals document?
-- [ ] Do delivered outputs completely cover all feature requirements in project goals?
-- [ ] Do delivered code implementations meet quality expectations in project goals?
+- Are there unfulfilled requirements remaining in project goals?
+- Do delivered outputs completely cover all feature requirements?
+- Do delivered implementations meet quality expectations?
 
-**Rejection Feedback Specification**: If rejecting completion declaration, clearly specify:
+**Rejection feedback format**:
 ```
-Rejection Reasons:
-- [Specific unfulfilled requirements or defects in project goals]
-
-Suggested Requirements for Planner to Plan Next Cycle:
-- [Clearly enumerate remaining planned/deliverable functionality items]
+Rejection Reasons: [Specific unfulfilled requirements or defects]
+Remaining Items for Planner: [Enumerate what still needs to be delivered]
 ```
-
-## Code Conciseness Constraints
-
-This project emphasizes code conciseness and maintainability; Reviewer should guard against these aspects:
-
-### Prohibited Code Patterns
-- **Dead Code**: Unused imports, commented-out old logic, "just-in-case" reserved code
-- **Redundant Abstraction**: Utility functions or classes created for single-use scenarios
-- **Bloated Comments**: Over-explaining obvious logic; invalid or outdated comments
-- **Duplicate Code**: Same logic copied in multiple places instead of being reused or extracted
-
-### Conciseness Principles
-- **Code Line Minimization**: Remove redundancy while maintaining readability
-- **Logic Mirrors Requirements**: Code structure should directly correspond to requirement decomposition, no over-design
-- **File Structure Alignment**: New files should fit into existing project structure, avoid isolated or duplicate directory hierarchy
-- **Dependency Minimization**: New requirements don't introduce unnecessary external dependencies or tools
-
-**Review Check Items**:
-- [ ] Are there unused imports or variables?
-- [ ] Are there commented-out code snippets?
-- [ ] Is there "future use" reserve logic?
-- [ ] Is identical logic defined in multiple places?
-- [ ] Do new files redundantly duplicate or conflict with existing project structure?
-
-## Time Zone Standard
-
-**Format**: `YYYY-MM-DD HH:MM` (e.g., 2026-05-12 04:00)
-**Timezone**: **Local timezone confirmed at project initialization**
-**Time acquisition**: Before writing any log entry, must execute `date +"%Y-%m-%d %H:%M"` to get the current system time — never fill in time from memory or estimation
 
 ## Version Recording Mechanism
 
-**Background**: Git version recording is configured at project initialization. The Reviewer must check whether git is enabled before any git operation.
+**Git enabled check**: Before any git operation, verify git was enabled during initialization. If NOT enabled, skip ALL git operations.
 
-**Git Enabled Check**: Before any git operation, verify git was enabled during initialization. If git is NOT enabled, skip ALL git operations — do NOT execute any git commands.
+**Version format**: `V{YYYYMMDD}-{HHMM} V{Major.Minor.Patch}` (e.g., V20260512-0430 V0.0.11)
 
-**Version Number Format**: `V{date}-{time} V{semantic-version}`
-- Date format: YYYYMMDD (e.g., 20260512)
-- Time format: HHMM (e.g., 0430)
-- Semantic version: Major.Minor.Patch (e.g., 0.0.11)
-- Full example: `V20260512-0430 V0.0.11`
+**When execution review passes (→ PLN_WAIT)**:
 
-**Reviewer's Version Recording Responsibility**:
-
-### When Execution Review Passes (Change to `PLN_WAIT`)
-
-**If git is NOT enabled**: Skip all git operations. Only update the collaboration log.
-
-**If git IS enabled**, execute these git operations to **commit version record**:
+If git IS enabled:
 ```bash
-# Step 1: Auto-infer version info
-# Check existing VERSIONS.md, CHANGELOG.md, or similar. If none, create VERSIONS.md.
-
-# Step 2: Update VERSIONS.md
-# Append new version record to VERSIONS.md
-
-# Step 3: Switch to project root and commit version
 cd {PROJECT_ROOT}
+# 1. Auto-infer version: check VERSIONS.md/CHANGELOG.md, create VERSIONS.md if none exists
+# 2. Append new version record to VERSIONS.md
 git add -A
 git commit -m "V{date}-{time} V{version} - [execution round summary]"
 ```
 
-**Important**:
-- `.pre/` is excluded via `.gitignore` by default — agents can always read collaboration documents
-- If user chose to track `.pre/`, `.pre/` will NOT be in `.gitignore`
-- **No more git stash** — the old stash-based flow has been removed
+Important: `.pre/` is excluded via `.gitignore` by default (agents always have access). No git stash — direct commit only after execution review.
 
-**Version Commit Message Format**:
-```
-V{date}-{time} V{version} - [summary]
-
-Example:
-V20260512-0430 V0.0.11 - Template improvements (decision standards + code analysis dimensions)
-V20260512-1012 V0.1.0 - Document restructuring (.pre directory migration)
-```
-
-**Cautions**:
-- All deliverable files must be saved before committing
-- Do not commit deliverables where Executor's self-check failed
-- Comply with collaboration log time recording standards
+**Commit message format**: `V{date}-{time} V{version} - [summary]`
 
 ## Loop Prevention Mechanism
 
-**Background**: Prevent infinite retry cycles when Executor keeps getting rejected, avoiding system deadlock.
+**Rule**: After rejecting Executor on the same requirement **3 consecutive times**, declare loop blockage and change status to `PLN_WAIT`.
 
-**Blocking Rule**:
-- After Reviewer rejects Executor on the same requirement **3 consecutive times**, declare loop blockage
-- In log, clearly mark "loop blockage", summarize rejection reasons
-- Change status to `PLN_WAIT`, let Planner re-evaluate requirement reasonableness
+**Count tracing**: Scan log from the most recent Planner `REV_WAIT` entry (the one that submitted the requirement). Count each subsequent rejection by Reviewer. At 3, mark blockage.
 
-**Rejection Count Tracing Method**:
-1. Scan collaboration log, find the most recent Planner `REV_WAIT` entry (the one that submitted the requirement)
-2. Starting from that entry, scan downward and count Reviewer's rejections of that requirement
-3. Each time Executor submits deliverable to `REV_WAIT`, that's one cycle
-4. Each rejection by Reviewer increments count by 1
-5. When count reaches 3, mark loop blockage and change status
-
-**Blockage Log Entry Example**:
+**Blockage log entry**:
 ```
-# Third rejection (triggers blockage)
-[time] Reviewer — Loop Blockage: Requirement A rejected 3 times
-- Rejection Summary: [Explanation of why all 3 rejections failed]
-- Status: PLN_WAIT to re-plan
+## [time] Reviewer — Loop Blockage: Requirement X rejected 3 times
+- Rejection Summary: [Why all 3 rejections failed]
+- Status: PLN_WAIT
 ```
 
-**Each Role's Response**:
-
-**Reviewer**:
-- Maintain rejection count, record each rejection's time, reason, submitter
-- When count reaches 3, immediately mark loop blockage, do not continue reviewing that cycle's submission
-
-**Planner**:
-- Upon receiving loop blockage marker, analyze rejection reasons
-- Determine if requirement description is unclear or requirement itself is infeasible
-- Re-plan: modify requirement description or re-split into smaller requirements, then resubmit
-
-**Executor**:
-- Identify loop blockage marker in log, stop retrying that requirement
-- Wait for Planner's new planning
-- Do not self-count rejections — Reviewer is responsible for counting and blockage declaration
+**Each role's response**: Reviewer declares blockage and stops reviewing that submission. Planner re-evaluates requirement (unclear description or infeasible approach). Executor stops retrying and waits for new planning.
 
 ## Loop Task Process Management
 
-**Background**: The Reviewer runs as a continuous loop task. To pause or restart at any time, record the loop task's process ID (cron job ID).
+Record your loop task job ID in the collaboration log on first cycle. `/loop` returns a job ID — immediately record it with model name in the log (no separate files).
 
-**Recording Rules**:
-- When first starting the Reviewer loop task, command format: `/loop "..."`
-- Claude returns a **job ID** (typically UUID format), displayed in the result
-- Immediately record this job ID and model name in the collaboration log — do NOT create separate files like `.runner-ids.txt`
-- Record format example:
-  ```
-  Planner job ID: d76a7f42 | Model: claude-opus-4-6
-  Executor job ID: e87e9g53 | Model: claude-sonnet-4-6
-  Reviewer job ID: f98f0h64 | Model: claude-opus-4-6
-  ```
-
-**Pause and Restart**:
-- **Pause**: Execute `/schedule-cancel <job-id>` or provide job ID to cancel that loop
-- **Restart**: Re-run `/loop "..."` command, which generates a new job ID
-
-**Three Agents' Job IDs**:
-- Planner, Executor, and Reviewer each have independent loop tasks, all need independent job ID recording
-- Allows pausing or restarting any single role's loop task at any time
-
-**Auto-Exit on Project Completion (DONE)**:
-- After the Reviewer declares DONE, immediately execute `CronDelete <own-job-id>` to cancel own loop task
-- Also note in the log entry that Planner and Executor should cancel their loops (agents cannot directly cancel other roles' loops — only notify via log)
+- **Pause**: `CronDelete <job-id>`
+- **Restart**: Re-run `/loop` command (generates new job ID)
+- **DONE auto-exit**: When log status is `DONE`, execute `CronDelete <own-job-id>` to cancel your loop

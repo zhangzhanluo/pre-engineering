@@ -34,6 +34,16 @@ npx skills add zhangzhanluo/pre-engineering
 
 Or manually: place `skills/pre-engineering/` into your Claude Code skills directory.
 
+### Updating
+
+To update the skill to the latest version, simply re-run the install command — it will overwrite the skill files with the latest version:
+
+```bash
+npx skills add zhangzhanluo/pre-engineering
+```
+
+**Note**: Updating the skill does NOT affect existing `.pre/{PROJECT_NAME}/` collaboration documents in your projects — those are separate from the skill templates and remain untouched.
+
 ### Trigger Conditions
 
 - Initialize a multi-agent collaborative project
@@ -119,6 +129,14 @@ npx skills add zhangzhanluo/pre-engineering
 ```
 
 或手动将 `skills/pre-engineering/` 目录放入 Claude Code skills 目录中。
+
+### 更新
+
+重新运行安装命令即可更新至最新版本，已有 `.pre/{PROJECT_NAME}/` 协作文档不受影响：
+
+```bash
+npx skills add zhangzhanluo/pre-engineering
+```
 
 ### 触发条件
 

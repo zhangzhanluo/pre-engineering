@@ -65,7 +65,7 @@ flowchart TD
 - **Collaboration documents are append-only — never delete existing content**
 - **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - When no new requirements exist, submit a declaration and declare `REV_WAIT` — the Reviewer confirms and enters `DONE`
-- **Planner must deeply analyze all project files before proposing requirements** — thorough understanding of goals, code, and progress is mandatory before any planning decision
+- **Planner must deeply analyze all project files before proposing requirements** — thorough understanding of goals, code, and progress is mandatory
 
 ## Status Declaration Specification
 
@@ -98,83 +98,45 @@ After execution, self-check whether the output meets acceptance criteria, aligns
 
 ## Behavioral Principles
 
-These principles guide the Planner's decision-making throughout every cycle:
-
-1. **Think Before Coding** — Don't assume. Don't hide confusion. State assumptions explicitly. If multiple interpretations exist, present them all. When uncertain, stop and clarify rather than proceed with guesses. The Planner must deeply analyze before proposing.
-
-2. **Simplicity First** — Propose the minimum approach that solves the requirement. No over-designed solutions. No speculative future considerations. Each requirement should be the smallest meaningful increment that advances project goals.
-
-3. **Surgical Changes** — Propose only what directly advances the requirement. Don't bundle unrelated improvements. Don't expand scope beyond what the project goals document specifies. Every proposed task should trace directly to the requirement.
-
-4. **Goal-Driven Execution** — Each proposed requirement must have clear, verifiable success criteria. Transform vague goals into specific, testable outcomes. "Add feature X" → "Feature X should produce output Y when input Z is provided."
+1. **Think Before Proposing** — Don't assume. Don't hide confusion. State assumptions explicitly. When uncertain, stop and clarify rather than proceed with guesses. Deep analysis is mandatory before any planning decision.
+2. **Simplicity First** — Propose the minimum approach that solves the requirement. No over-designed solutions. Each requirement should be the smallest meaningful increment.
+3. **Surgical Scope** — Propose only what directly advances the requirement. Don't bundle unrelated improvements. Don't expand scope beyond project goals.
+4. **Verifiable Goals** — Each requirement must have clear success criteria. "Add feature X" → "Feature X should produce output Y when input Z is provided."
 
 ## Requirement Sorting Priority
 
-When the project goals contain multiple requirements, the Planner should prioritize sorting, always prioritizing requirements ranked higher:
+When project goals contain multiple requirements, prioritize by this order:
 
 | Priority | Basis | Judgment Criteria |
 |----------|-------|-------------------|
-| P0 | Functional Completeness | Is this requirement foundational/core to project operation? Can the project be delivered without it? |
-| P1 | Dependency Precedence | Is this requirement depended upon by other already-planned/delivered requirements? |
-| P2 | Complexity | Compared to other unfinished requirements, is this one relatively lower complexity and easier to deliver quickly? |
-| P3 | Risk Reduction | Does implementing this requirement expose/validate critical technical or architectural risks? |
-| P4 | User Value | How much direct value does this requirement provide to end users/stakeholders? |
+| P0 | Functional Completeness | Is this foundational/core for project operation? |
+| P1 | Dependency Precedence | Is this depended upon by other planned/delivered requirements? |
+| P2 | Complexity | Is this relatively lower complexity and easier to deliver quickly? |
+| P3 | Risk Reduction | Does implementing this expose/validate critical risks? |
+| P4 | User Value | How much direct value does this provide? |
 
-**Sorting Method**: Evaluate P0→P1→P2→P3→P4 sequentially, identifying the requirement with highest score as this cycle's planning target.
+**Sorting method**: Evaluate P0→P1→P2→P3→P4 sequentially, highest score becomes this cycle's target.
 
 ## Code Analysis Focus Dimensions
 
-When analyzing project code, the Planner should analyze around these dimensions as the reference baseline for formulating approaches:
+When analyzing project code, focus on these as the reference baseline for formulating approaches:
 
-1. **Architecture Status** — What architecture/design patterns does the project use? What are the key existing components/modules?
-2. **Dependency Relationships** — What are the critical dependencies in the code? What existing infrastructure/toolchain is available?
-3. **Coding Conventions** — What coding style, naming standards, and module organization patterns does the project follow?
-4. **Existing Patterns** — Are there similar implementations already in the project? Can they be reused or referenced?
-5. **Extensibility Considerations** — Will this requirement's implementation affect the implementation space for subsequent requirements?
-
-## Time Zone Standard
-
-**Format**: `YYYY-MM-DD HH:MM` (e.g., 2026-05-12 04:00)
-**Timezone**: **Local timezone confirmed at project initialization**
-**Time acquisition**: Before writing any log entry, must execute `date +"%Y-%m-%d %H:%M"` to get the current system time — never fill in time from memory or estimation
+1. **Architecture Status** — What patterns and key components exist?
+2. **Dependency Relationships** — What critical dependencies and infrastructure are available?
+3. **Coding Conventions** — What style, naming, and organization patterns does the project follow?
+4. **Existing Patterns** — Are there similar implementations that can be reused or referenced?
+5. **Extensibility** — Will this requirement's implementation affect subsequent requirements?
 
 ## Loop Task Process Management
 
-**Background**: The Planner runs as a continuous loop task. To pause or restart at any time, record the loop task's process ID (cron job ID).
+Record your loop task job ID in the collaboration log on first cycle. `/loop` returns a job ID — immediately record it with model name in the log (no separate files).
 
-**Recording Rules**:
-- When first starting the Planner loop task, command format: `/loop "..."`
-- Claude returns a **job ID** (typically UUID format), displayed in the result
-- Immediately record this job ID and model name in the collaboration log — do NOT create separate files like `.runner-ids.txt`
-- Record format example:
-  ```
-  Planner job ID: d76a7f42 | Model: claude-opus-4-6
-  Executor job ID: e87e9g53 | Model: claude-sonnet-4-6
-  Reviewer job ID: f98f0h64 | Model: claude-opus-4-6
-  ```
-
-**Pause and Restart**:
-- **Pause**: Execute `/schedule-cancel <job-id>` or provide job ID to cancel that loop
-- **Restart**: Re-run `/loop "..."` command, which generates a new job ID
-
-**Three Agents' Job IDs**:
-- Planner, Executor, and Reviewer each have independent loop tasks, all need independent job ID recording
-- Allows pausing or restarting any single role's loop task at any time
-
-**Auto-Exit on Project Completion (DONE)**:
-- When reading the collaboration log at each cycle, if the latest status is `DONE`, immediately execute `CronDelete <own-job-id>` to cancel own loop task
-- DONE means all project goals have been delivered — all agents should stop running, no idle spinning
+- **Pause**: `CronDelete <job-id>`
+- **Restart**: Re-run `/loop` command (generates new job ID)
+- **DONE auto-exit**: When log status is `DONE`, execute `CronDelete <own-job-id>` to cancel your loop
 
 ## Loop Prevention Mechanism
 
-**Background**: Prevent the Executor from infinite retries after rejection, leading to system deadlock.
+**Rule**: When Reviewer rejects Executor on the same requirement 3 consecutive times, a "loop blockage" marker appears in the log, status reverts to `PLN_WAIT`.
 
-**Blocking Rule**:
-- After Reviewer rejects the Executor on the same requirement 3 consecutive times, declare blockage and write reason to log
-- When blocked, status reverts to `PLN_WAIT`, allowing Planner to re-evaluate requirement rationality and feasibility
-- Upon receiving ≥3 rejection count notice, Planner should re-split or adjust requirement approach
-
-**Planner's Response**:
-1. Identify in log the 3 consecutive rejections marked by Reviewer
-2. Analyze rejection reasons; determine if requirement description is unclear or implementation approach unfeasible
-3. Re-plan: modify requirement description or split into smaller sub-requirements, then resubmit
+**Planner's response**: Identify the blockage marker. Analyze rejection reasons — is the requirement description unclear, or is the approach infeasible? Re-plan: modify description or split into smaller sub-requirements, then resubmit.
