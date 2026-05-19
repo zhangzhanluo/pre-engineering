@@ -1,10 +1,22 @@
-# 版本记录
+# Version History
 
-V20260519-1104 V0.4.0
-- Skill优化重构：模板总行数从1472→913（缩减38%），核心内容完整保留
-- 审核者模板360→219行：合并代码简洁性到审核维度、精简三维度审核标准、压缩版本记录和循环阻断
-- 规划者模板180→141行：精炼行为准则、压缩循环任务管理和阻断说明
-- 执行者模板203→151行：合并质量自检清单为8项精炼版、精简循环管理
-- SKILL.md触发描述优化：从列举式触发词改为覆盖自然表达的推力描述
-- SKILL.md结构优化：合并安装与更新章节、增加why解释、精简冗余格式说明
-- README.md英中文新增Updating章节：重运行安装命令即可更新，已有协作文档不受影响
+V20260513-1437 V0.1.0
+- Initial commit: SKILL.md, README.md, 6 reference templates (planner/executor/reviewer guides, collaboration log format, state system reference)
+
+V20260513-1452 V0.1.1
+- README.md: add project background story (three-smith proverb, PRE dual meaning)
+
+V20260518-1129 V0.2.0
+- Add bilingual (en/zh) support and reorganize reference templates by language
+- Move English templates to references/en/ subdirectory
+- Add full Chinese template set (planner/executor/reviewer guides, collaboration log format, state system reference)
+- README.md bilingual restructuring, SKILL.md updated for language detection
+
+V20260519-1104 V0.3.0
+- Skill optimization: template total lines from 1472→913 (38% reduction), core content fully preserved
+- Reviewer template 360→219 lines: merge code conciseness into review dimensions, streamline three-dimension standards, compress version recording and loop blocking
+- Planner template 180→141 lines: refine behavioral principles, compress loop task management and blocking explanation
+- Executor template 203→151 lines: merge quality self-check into 8-item concise version, streamline loop management
+- SKILL.md trigger description: from enumerated trigger words to natural-expression coverage
+- SKILL.md structure: merge install & update sections, add why explanations, streamline redundant format specs
+- README.md add Updating section (both en/zh): re-run install command to update, existing collaboration docs unaffected
