@@ -64,6 +64,12 @@ flowchart TD
 - **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - **Executor must focus on implementation simplicity and avoid redundancy** — minimum code that solves the problem, nothing speculative
 
+## Log Operation Hard Rules
+
+1. **Read every cycle**: At the start of every cycle, read the full collaboration log content to get the latest status code — never infer status from memory or conversation context
+2. **Append only, never modify**: New entries must only be appended at the end of the file — never modify, delete, or replace existing entries. Do NOT use Write to rewrite the entire file (this loses existing content). Do NOT use Edit to modify existing lines
+3. **Verify status before action**: Confirm the last status code in the log matches your action condition before acting. If status doesn't match, skip this cycle and do not write anything
+
 ## Status Declaration Specification
 
 When appending an entry to the collaboration log, the status declaration line format: `Status: <status_code>`

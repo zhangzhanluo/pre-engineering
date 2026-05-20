@@ -10,6 +10,12 @@
 6. **Standardized status codes**: Only the 7 fixed status codes may be used — no custom status codes
 7. **Time must be obtained from system**: When writing a log entry, must first execute `date +"%Y-%m-%d %H:%M"` to get the current system time — never fill in time from memory or estimation
 
+## Log Operation Hard Rules (Preventing Log Corruption)
+
+1. **Read actual file every cycle**: Before each action, must read the full collaboration log file content to get the latest status code — never infer from memory or conversation context, never assume "the status I saw last time is still valid"
+2. **Append only, never modify existing content**: When adding new entries, only write at the end of the file — never modify, delete, or replace any content in existing entries. Do NOT use Write tool to rewrite the entire file (this loses all existing content). Do NOT use Edit tool to modify existing lines
+3. **Verify status before action**: Confirm the last status code in the log matches your role's action condition before acting. If status doesn't match, skip the cycle and do not write anything
+
 ## Entry Format Template
 
 ```markdown

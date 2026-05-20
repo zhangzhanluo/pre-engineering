@@ -20,3 +20,9 @@ V20260519-1104 V0.3.0
 - SKILL.md trigger description: from enumerated trigger words to natural-expression coverage
 - SKILL.md structure: merge install & update sections, add why explanations, streamline redundant format specs
 - README.md add Updating section (both en/zh): re-run install command to update, existing collaboration docs unaffected
+
+V20260520-1053 V0.4.0
+- Log operation hard rules: all 6 templates add 3 mandatory rules (read every cycle, append only, verify status before action) to prevent log corruption
+- Multi-perspective review mechanism: reviewer templates (en/zh) add 4-step scan (rebuttal-first → perspective-switch → assumption-challenge → cross-dimension conflicts), flowchart updated accordingly
+- Reviewer behavioral principles: add "Rebuttal First" as top principle, deliverable review requires multi-perspective scan before checklist
+- Git pre-check: SKILL.md and reviewer templates add mandatory `.pre/` in `.gitignore` verification before any git operation

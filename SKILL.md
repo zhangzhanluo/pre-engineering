@@ -179,7 +179,7 @@ After Step 2 confirmation, before generating documents, ask user whether to enab
 **If disabled**: Skip ALL git operations throughout the entire workflow.
 
 **If enabled**:
-1. Confirm `.pre/{project_name}/` is in `.gitignore` (default: excluded). If user wants to track `.pre/{project_name}/`, do NOT add it to `.gitignore`.
+1. Verify `.pre/` is in `.gitignore`. If NOT present, add `.pre/` to `.gitignore` first (unless user wants to track `.pre/{project_name}/`). This check is mandatory — collaboration documents must not be accidentally committed.
 2. Before starting agents, commit current project state as baseline.
 3. After each execution review passes:
    - Auto-infer version info from project (check existing VERSIONS.md, CHANGELOG.md, or similar). If none found, create `VERSIONS.md`.
