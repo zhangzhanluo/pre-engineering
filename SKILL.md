@@ -149,7 +149,7 @@ Present equivalent instructions in Chinese, with file names and paths adapted ac
 
 ---
 
-**Record Loop Task IDs**: Each `/loop` returns a job ID. Agents will automatically record their job ID and model name in the collaboration log when they start their first cycle. Users can verify job IDs by checking the collaboration log.
+**Record Loop Task IDs**: Each `/loop` returns a job ID. On the first cycle, agents record their job ID and model name to the collaboration log as a one-time registration entry — this is the only entry permitted during a non-action cycle (see each role guide's Loop Task Process Management for the format). Users can verify job IDs by checking the collaboration log.
 
 **Project control**:
 

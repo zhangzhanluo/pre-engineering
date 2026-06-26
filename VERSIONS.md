@@ -135,3 +135,7 @@ V20260624-0950 V0.4.5
 - SKILL.md consistency: init collaboration-log first entry changed to shell append (old "Write to" literally conflicted with hard rule); safety checklist adds shell-append requirement
 - README.md consistency: design principle #8 and collaboration-log note add shell-append requirement, aligning with CLAUDE.md
 - Shell-append hard rule and Write/Edit ban retained (intentionally hardened, not reverted); V0.4.2→V0.4.4 missing V0.4.3 is historical legacy (V0.1.3→V0.1.5 same gap, suspected intentional skip), not backfilled
+
+V20260626-1445 V0.4.6
+- Job-ID registration rule reconciliation: 6 role templates (zh/en) + SKILL.md add a defined "Job-ID registration entry" — first cycle, one-time only, the sole entry permitted during a non-action cycle; its status line re-states the log's current status code (no status change, not a role declaration, no parenthetical notes)
+- Root cause: in real use (vrp-rl project, Session c36a787f) the Executor's first cycle was PLN_WAIT (must skip); the "record job ID on first cycle" rule collided with hard rule #3 "do not write when status doesn't match" and the core rule "no skip-noise entries", forcing the agent to improvise a "loop started" entry that declared PLN_WAIT (not an Executor-allowed status) and appended parenthetical notes to the status line — violating hard rule #3, core rule, status-declaration spec, and format rule #4
