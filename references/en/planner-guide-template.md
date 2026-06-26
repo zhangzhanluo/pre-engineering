@@ -93,12 +93,14 @@ Log entries are directional guidance, not full specification documents. Verifica
 ```markdown
 ## [time] Planner — <action description>
 - Requirement: [requirement name, 1 line]
-- Approach: [approach direction highlights, 1-2 lines]
+- Approach: [implementation path + key technical choices, 1-2 lines]
 - Deliverable: [expected output, 1 line]
 - Status: <status_code>
 ```
 
 ## Quality Self-Check
+
+**Before writing to the log (anti-bloat)**: Is the whole entry ≤5 lines? Does Approach contain only implementation path + key technical choices — no status diagnostics, no subtask lists, no acceptance criteria (the Executor derives these)? If over the limit or containing prohibited content, trim back to direction only.
 
 After execution, self-check whether the output meets acceptance criteria, aligns with the project goals document, and is consistent with the project code.
 

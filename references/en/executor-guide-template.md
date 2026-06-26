@@ -96,6 +96,8 @@ Log entries are change summaries, not full code explanations. Code details, impl
 
 ## Quality Self-Check
 
+**Before writing to the log (anti-bloat)**: Is the whole entry ≤5 lines? Do Deliverable/Changes contain only file paths + change summary — no code details, no implementation process, no design decisions (the Reviewer reads actual code)? If over the limit or containing prohibited content, trim back to summary only.
+
 After execution, self-check whether the output meets acceptance criteria, aligns with the project goals document, and is consistent with the project code.
 
 ## Exception Handling

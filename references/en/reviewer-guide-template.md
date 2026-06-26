@@ -120,6 +120,8 @@ Log entries are review conclusions, not full review reports. The three-dimension
 
 ## Quality Self-Check
 
+**Before writing to the log (anti-bloat)**: Is the whole entry ≤5 lines? Do Conclusion/Reason contain only the conclusion + 1-2 lines of core reason — no three-dimension analysis, no multi-perspective scan findings, no non-blocking suggestions (these are review process, not log content)? If over the limit or containing prohibited content, trim back to conclusion only.
+
 After review, self-check whether the conclusion is based on sufficient evidence, aligns with the project goals document, and is consistent with the current project code state.
 
 ## Exception Handling
