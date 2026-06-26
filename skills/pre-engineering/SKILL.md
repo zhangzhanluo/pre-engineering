@@ -149,8 +149,6 @@ Present equivalent instructions in Chinese, with file names and paths adapted ac
 
 ---
 
-**Record Loop Task IDs**: Each `/loop` returns a job ID. On the first cycle, agents record their job ID and model name to the collaboration log as a one-time registration entry — this is the only entry permitted during a non-action cycle (see each role guide's Loop Task Process Management for the format). Users can verify job IDs by checking the collaboration log.
-
 **Project control**:
 
 | Control | Operation | Agent response |
@@ -186,13 +184,10 @@ After Step 2 confirmation, before generating documents, ask user whether to enab
    - Commit directly with version information in commit message.
 4. **Version format**: `V{date}-{time} V{semantic-version}` (e.g., V20260514-1637 V0.3.4)
 
-**Key change from old mechanism**: No more stash — direct commit after execution review only. Planning review no longer triggers any git operation.
-
 ---
 
 ## Safety and Integrity Checks
 
-1. **Do not overwrite existing files**
-2. **Collaboration log is append-only via shell append** — log entries must be written using shell append (`cat >> file <<'EOF'`), never Write/Edit tools; this guarantees new content is only added at the end
-3. **Project goals document protected**
-4. **Code directory creation**: Create default code directory if not exists
+1. **Collaboration log is append-only via shell append** — log entries must be written using shell append (`cat >> file <<'EOF'`), never Write/Edit tools; this guarantees new content is only added at the end
+2. **Project goals document protected**
+3. **Code directory creation**: Create default code directory if not exists

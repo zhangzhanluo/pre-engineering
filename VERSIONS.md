@@ -154,3 +154,9 @@ V20260626-1635 V0.4.9
 
 V20260626-1646 V0.4.10
 - standard project structure
+
+V20260626-1710 V0.5.0
+- Remove loop-id (job ID) output machinery: delete the "循环任务进程管理 / Loop Task Process Management" section from all 6 role templates (zh/en), the "Record Loop Task IDs" paragraph from SKILL.md, and the "Job IDs" bullets from README.md (zh/en)
+- Agents no longer record their /loop job ID to the collaboration log and no longer self-CronDelete on DONE; DONE → agents skip each cycle (already covered by the state-driven-behavior tables), user stops the three /loop commands manually when done. Pause/restart become user-managed via the job ID /loop prints at launch
+- Reverts the V0.4.6 Job-ID registration rule and its rule-collision reconciliation (registration entry as the sole non-action-cycle exception, status-line-restates-current-code workaround) — eliminates the carve-out that contradicted hard rule #3 (no write on skip) and the no-skip-noise core rule
+- Root cause: the V0.4.6 registration mechanism added significant complexity (exception carve-out, status-line restatement, rule reconciliation) for marginal value (user "verifying job IDs via the log"); user requested removal of the loop-id output setting

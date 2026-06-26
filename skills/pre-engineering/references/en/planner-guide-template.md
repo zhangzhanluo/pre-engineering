@@ -140,27 +140,6 @@ When analyzing project code, focus on these as the reference baseline for formul
 4. **Existing Patterns** — Are there similar implementations that can be reused or referenced?
 5. **Extensibility** — Will this requirement's implementation affect subsequent requirements?
 
-## Loop Task Process Management
-
-Record your loop task job ID in the collaboration log on first cycle. `/loop` returns a job ID — immediately record it with model name in the log (no separate files).
-
-**Job-ID registration entry** (first cycle, one-time only) — an explicit exception to "do not write when status doesn't match" and "only log on status change":
-
-```markdown
-## [time] <Role> — Loop started (job ID registration)
-- job ID: <job-id>
-- model: <model-name>
-- Status: <current status code>
-```
-
-- If the first cycle's status matches your action condition: fold the job ID into that action entry; no separate registration needed
-- If the first cycle's status doesn't match (must skip): you may write this ONE registration entry; thereafter, skip without writing whenever status doesn't match
-- The status line re-states the log's current status code to satisfy format — it does NOT change status, is NOT a role declaration, and must not carry parenthetical notes
-
-- **Pause**: `CronDelete <job-id>`
-- **Restart**: Re-run `/loop` command (generates new job ID)
-- **DONE auto-exit**: When log status is `DONE`, execute `CronDelete <own-job-id>` to cancel your loop
-
 ## Loop Prevention Mechanism
 
 **Rule**: When Reviewer rejects Executor on the same requirement 3 consecutive times, a "loop blockage" marker appears in the log, status reverts to `PLN_WAIT`.

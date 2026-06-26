@@ -81,7 +81,6 @@ skills/pre-engineering/
 4. **Requirement collection**: 2-step interactive process
 5. **Document generation**: 5 `.pre/{PROJECT_NAME}/` collaboration documents generated (with project-specific absolute paths)
 6. **Launch agents**: Start three agents with `/loop` commands (using absolute paths — no directory switching needed)
-7. **Job IDs**: Agents automatically record their loop job IDs in the collaboration log
 
 ### Key Mechanisms
 
@@ -175,7 +174,6 @@ skills/pre-engineering/
 4. **需求收集**：2步交互流程
 5. **文档生成**：生成5份 `.pre/{PROJECT_NAME}/` 协作文档（含项目专属绝对路径）
 6. **启动智能体**：用 `/loop` 命令启动三个智能体（使用绝对路径，无需切换目录）
-7. **Job ID**：智能体自动将循环任务 job ID 记录到协作日志
 
 ### 核心机制
 
