@@ -109,7 +109,7 @@ Review output is the review conclusion in the collaboration log entry — no sta
 
 ## Output Specification
 
-Log entries are review conclusions, not full review reports. When rejecting, give modification direction — don't list every problem detail. The Executor self-corrects based on direction.
+Log entries are review conclusions, not full review reports. The three-dimension review and multi-perspective scan are the **review process** — their results do NOT go in the log; log only the conclusion and 1-2 lines of core reason. On approval especially, do not lay out the three-dimension analysis or multi-perspective findings as entry content. When rejecting, give modification direction — don't list every problem detail. The Executor self-corrects based on direction.
 
 ```markdown
 ## [time] Reviewer — <action description>
