@@ -6,22 +6,40 @@
 2. **Uniform entry format**: Each entry starts with `## [time] Role — action description`, ends with `Status: <status_code>`
 3. **Blank line between entries**: Every entry must be separated by a blank line, ensuring consistent and readable formatting
 4. **Status declaration is mandatory and must be within an entry**: Every entry must include a status declaration line as the last line of the entry. **Status declarations must NEVER appear as standalone lines** — e.g., `Status: EXE_ING` cannot appear on its own line; it must be embedded within a complete entry
-5. **Concise result summaries**: Content lines should be kept within 5 lines (excluding the status line)
+5. **Concise result summaries**: Content lines should be kept within 5 lines (excluding the status line). Log entries are directional guidance / change summaries / review conclusions, NOT full specification documents — verification criteria, subtask lists, status analysis, and code details do NOT go in the log; each role derives these independently
 6. **Standardized status codes**: Only the 7 fixed status codes may be used — no custom status codes
-7. **Time must be obtained from system**: When writing a log entry, must first execute `date +"%Y-%m-%d %H:%M"` to get the current system time — never fill in time from memory or estimation
+7. **Time must be obtained from system**: When writing a log entry, must first execute `date +"%Y-%m-%d %H:%M"` to get the current system time and use the command output directly as the entry time field — never fill time from memory or conversation context
 
 ## Log Operation Hard Rules (Preventing Log Corruption)
 
 1. **Read actual file every cycle**: Before each action, must read the full collaboration log file content to get the latest status code — never infer from memory or conversation context, never assume "the status I saw last time is still valid"
-2. **Append only, never modify existing content**: When adding new entries, only write at the end of the file — never modify, delete, or replace any content in existing entries. Do NOT use Write tool to rewrite the entire file (this loses all existing content). Do NOT use Edit tool to modify existing lines
+2. **Shell append only**: When writing to the collaboration log, MUST use shell append commands (`cat >> log_file_path <<'EOF'` ... `EOF`). Do NOT use Write tool to rewrite the entire file. Do NOT use Edit tool to modify existing lines. Shell append operations inherently only write at the end of the file — they cannot modify existing content. Note: the closing `EOF` delimiter must be at column 0 (no leading whitespace); otherwise the shell will not recognize it as the terminator and the command will hang until timeout
 3. **Verify status before action**: Confirm the last status code in the log matches your role's action condition before acting. If status doesn't match, skip the cycle and do not write anything
 
-## Entry Format Template
+## Per-Role Entry Format Templates
 
+Planner:
 ```markdown
-## [time] Role — <action description>
-- Content line 1
-- Content line 2
+## [time] Planner — <action description>
+- Requirement: [requirement name, 1 line]
+- Approach: [approach direction highlights, 1-2 lines]
+- Deliverable: [expected output, 1 line]
+- Status: <status_code>
+```
+
+Executor:
+```markdown
+## [time] Executor — <action description>
+- Deliverable: [file paths, 1 line]
+- Changes: [key change highlights, 2-3 lines]
+- Status: <status_code>
+```
+
+Reviewer:
+```markdown
+## [time] Reviewer — <action description>
+- Conclusion: [approved/rejected, 1 line]
+- Reason: [core highlights, 1-2 lines]
 - Status: <status_code>
 ```
 

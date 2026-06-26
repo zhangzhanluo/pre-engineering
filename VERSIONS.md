@@ -1,28 +1,137 @@
 # Version History
 
-V20260513-1437 V0.1.0
-- Initial commit: SKILL.md, README.md, 6 reference templates (planner/executor/reviewer guides, collaboration log format, state system reference)
+Curated English mirror of the canonical project version history (root `VERSIONS.md`), scoped to skill-relevant entries. Pre-article LaTeX-paper commits (V0.3.8–V0.3.19) are omitted.
 
-V20260513-1452 V0.1.1
-- README.md: add project background story (three-smith proverb, PRE dual meaning)
+V20260512-0440 V0.1.0
+- Project initialization; PRE mechanism design completed
 
-V20260518-1129 V0.2.0
-- Add bilingual (en/zh) support and reorganize reference templates by language
-- Move English templates to references/en/ subdirectory
-- Add full Chinese template set (planner/executor/reviewer guides, collaboration log format, state system reference)
-- README.md bilingual restructuring, SKILL.md updated for language detection
+V20260512-1457 V0.1.1
+- 核心设计.md: add 3 design principles (think-before-act, surgical modification, goal-driven execution), timezone standard, unify directory naming to .pre/
+- Chinese templates completed: planner (90→166 lines), executor (87→187), reviewer (110→338); add behavior-principles, timezone, loop-blocking, process-management sections
+- English templates: add behavior-principles section, role-personality emphasis, unify version format to V{date}-{time} V{semantic-version}
+- SKILL.md: remove external dependencies (inline 核心设计.md references), unify .pre/ naming, timezone to user-local
+- Create CLAUDE.md (navigation pointer) and VERSIONS.md (version record)
 
-V20260519-1104 V0.3.0
-- Skill optimization: template total lines from 1472→913 (38% reduction), core content fully preserved
-- Reviewer template 360→219 lines: merge code conciseness into review dimensions, streamline three-dimension standards, compress version recording and loop blocking
-- Planner template 180→141 lines: refine behavioral principles, compress loop task management and blocking explanation
-- Executor template 203→151 lines: merge quality self-check into 8-item concise version, streamline loop management
-- SKILL.md trigger description: from enumerated trigger words to natural-expression coverage
-- SKILL.md structure: merge install & update sections, add why explanations, streamline redundant format specs
-- README.md add Updating section (both en/zh): re-run install command to update, existing collaboration docs unaffected
+V20260512-1530 V0.1.2
+- Timezone: change from fixed Shanghai UTC+8 to user-local timezone (confirmed at init)
+- Project background story merged into 4 docs: README.md, CLAUDE.md, two skill READMEs (three-smith proverb, PRE dual meaning)
+- Create README.md under both skill folders
 
-V20260520-1053 V0.4.0
-- Log operation hard rules: all 6 templates add 3 mandatory rules (read every cycle, append only, verify status before action) to prevent log corruption
-- Multi-perspective review mechanism: reviewer templates (en/zh) add 4-step scan (rebuttal-first → perspective-switch → assumption-challenge → cross-dimension conflicts), flowchart updated accordingly
-- Reviewer behavioral principles: add "Rebuttal First" as top principle, deliverable review requires multi-perspective scan before checklist
-- Git pre-check: SKILL.md and reviewer templates add mandatory `.pre/` in `.gitignore` verification before any git operation
+V20260512-1646 V0.1.3
+- Template path placeholders changed to real defaults (协作日志.md, 项目目标.md, ../src), removing path ambiguity
+- SKILL.md positioning: "initialize PRE project" → "configure PRE collaboration mechanism for user projects"
+- Fix typo "荣誉代码" → "冗余代码" (4 files)
+- Add .pre/ to .gitignore to prevent stash from touching collaboration docs
+- Project code dir: hardcoded src/ → flexible (default src/)
+- Collaboration-log format rules: blank line between entries; status declarations cannot stand alone
+- All three agents auto-cancel loop task after DONE (added to all 6 templates)
+
+V20260513-1015 V0.1.5
+- "死代码" → "冗余代码" (5 files: README, 核心设计, CLAUDE, reviewer templates ×2)
+- CLAUDE.md: add project-modification norms (three-file linkage check; collaboration docs append-only)
+- 核心设计.md principle #8 extended: collaboration docs append-only, no deleting existing content
+- Time-fetch policy: all templates/docs add rule — must run `date +"%Y-%m-%d %H:%M"` before writing log time, no filling from memory (10 files)
+
+V20260513-1100 V0.1.6
+- 6 agent templates: core rule adds "collaboration docs append-only, no deleting existing content"
+- Collaboration-log format reference rule #1 strengthened: "log append-only" → "collaboration docs append-only, no deleting/modifying existing entries"
+- Two skill READMEs: remove "self-contained" section (design-process artifact, not for release)
+- Confirm zh/en structure match (78 sections, 100% corresponding)
+
+V20260513-1442 V0.2.0
+- Push to GitHub repository
+
+V20260513-1442 V0.2.1
+- Improve skill documentation
+
+V20260513-1442 V0.2.2
+- Exclude the claude directory from version recording
+
+V20260514-1118 V0.3.0
+- Merge zh/en skill into a single version, eliminating version split
+- SKILL.md: auto-detect zh/en language with user confirmation; reference templates via subdirectories
+- README.md: bilingual switching; 核心设计.md syncs file structure
+- Remove redundant skills/pre-engineering-cn directory
+
+V20260514-1136 V0.3.1
+- Complete skill-merge leftovers: SKILL.md Step 0 language detection + npx skills add install; README.md bilingual anchors + acknowledgments
+- Migrate templates to references/en/ and references/zh/; delete pre-engineering-cn/
+- 6 guide templates: add log norms (no line numbers, record only on status change) and loop-task-ID + model-name recording rules
+- 核心设计.md syncs file structure and log rules (#7 no line numbers, #8 record only on status change)
+
+V20260514-1210 V0.3.2
+- Version-recording mechanism refactor: drop git stash save; switch to confirm git-enabled at init + commit directly after review passes
+- SKILL.md: add git-confirmation flow (enabled/disabled paths) and auto-inferred version-info logic
+- Reviewer guide templates (en/zh): remove planner-review stash step; add skip rule when git disabled
+- 核心设计.md syncs version-recording mechanism
+
+V20260514-1223 V0.3.3
+- Multi-project parallel collaboration: SKILL.md Step 1 collects project name; docs generated under .pre/{project-name}/
+- 6 guide templates: code path update ../src → ../../src (adapt to new directory level)
+- 核心设计.md: file-structure section adds multi-project subdirectory note
+
+V20260514-1637 V0.3.4
+- Skill generalization: SKILL.md → pure English; drop Claude-Code-specific concepts; switch to generic AI-agent-tool description
+- Template directory rename: references/zh/ → references/cn/ (international language-code convention)
+- 6 guide templates: code path → default root dir: ../../src → ./
+- 核心设计.md: update file structure (zh→cn) and file-role notes (code dir defaults to root ./)
+
+V20260514-1933 V0.3.5
+- Template directory correction: references/cn/ → references/zh/ (align with project goal #12)
+- SKILL.md: update all cn path references to zh (Step 0 language detection, doc dictionary, launch commands)
+- 核心设计.md: update file-structure description (cn/→zh/)
+
+V20260514-1950 V0.3.6
+- Fix template code-path bug: 6 guide templates (zh/en ×3) code path ./ → ../../ (agent working dir is .pre/{project-name}/)
+- SKILL.md template-gen step 2: default path → ../../, with relative-position note
+- 核心设计.md file-role notes: clarify code dir defaults to root, relative path ../../
+
+V20260515-0939 V0.3.7
+- Agent guide files add project identity — all 6 templates (3 zh + 3 en) add ## 项目标识 / ## Project Identity section with {PROJECT_NAME} and {PROJECT_ROOT} placeholders
+- Paths relative → absolute — collaboration log, project-goal doc, project-code paths change from bare filenames/../../ to {PROJECT_ROOT}/.pre/{PROJECT_NAME}/... absolute format
+- Launch commands use absolute paths — /loop commands reference files via absolute paths; agents need no cd
+- Job ID auto-recorded by agent — no longer user-manual; agent writes it to the collaboration log on first loop
+- Git flow fix — remove old git stash save references; commit directly after review passes; reviewer git commands prefixed with cd {PROJECT_ROOT}
+
+V20260519-1004 V0.3.20
+- SKILL.md, skill README.md, project README.md: add Skill Updating section — re-run npx skills add to update; existing collaboration docs unaffected
+
+V20260519-1100 V0.4.0
+- Skill optimization & refactor: template total lines 1472→913 (38% reduction); core content fully preserved
+- Reviewer template 360→219: merge code-conciseness into review dimensions; streamline three-dimension standards; compress version-recording and loop-blocking
+- Planner template 180→141: refine behavior principles; compress loop-task management and blocking explanation
+- Executor template 203→151: merge quality self-check into 8-item concise version; streamline loop management
+- SKILL.md trigger description: enumerated trigger words → natural-expression "push" description
+- SKILL.md structure: merge install & update sections; add why explanations; streamline redundant format specs
+
+V20260519-1400 V0.4.1
+- Add internal version file (VERSIONS.md) for the skill project
+
+V20260520-1019 V0.4.2
+- Git pre-check: reviewer template, 核心设计.md, SKILL.md all add mandatory rule — verify .pre/ is in .gitignore before any git operation (non-skippable)
+- Multi-perspective review: reviewer template adds 4-step scan (rebuttal-first → perspective-switch → assumption-challenge → cross-dimension conflicts); must run before deliverable review
+- Reviewer behavior principles: add "Rebuttal First" as top principle (find rejection reasons before approval reasons)
+- Mermaid flowchart: add MultiScan node (insert multi-perspective scan step in deliverable-review path)
+- CLAUDE.md, 核心设计.md sync reviewer-strictness and git-check rules
+- Log integrity: all 6 agent templates add "Log operation hard rules" section (read actual file every cycle, append-only no modifying existing, verify status before action)
+- Collaboration-log format reference (zh/en): add "Log operation hard rules" section to prevent log corruption
+- 核心设计.md collaboration-log rules: add "Log integrity" subsection
+- CLAUDE.md project-modification norms: add log-integrity rule
+- Root cause: in practice agents inferred status from memory instead of reading the actual file, and modified existing log entries instead of appending
+
+V20260520-1122 V0.4.4
+- Log conciseness strengthened: all 6 agent templates' output specs changed to role-specific format (planner: need/plan/deliverable; executor: output/changes; reviewer: conclusion/reasons); clarify "log entries are direction pointers, not full spec docs"
+- Collaboration-log format reference (zh/en): entry template generic → role-specific; rule #5 extended — "acceptance criteria, subtask lists, etc. do not belong in the log"
+- 核心设计.md: example log switched to role-specific format; status-declaration recording format updated; template output specs updated
+- Root cause: in practice the planner wrote 30+ line log entries (need detail, current-state analysis, 6-step plan, 8 acceptance items, 3 subtasks), seriously violating the 5-line limit
+
+V20260624-0950 V0.4.5
+- Shell-append hard rule: collaboration-log writes must use shell append (`cat >> file <<'EOF'`); Write/Edit tools forbidden — shell append can only write to end, cannot modify existing content
+- Time must come from command: log-entry time must be taken directly from `date +"%Y-%m-%d %H:%M"` output; no filling from memory or context
+- Log-operation hard-rules update scope: 6 role templates 4 rules (read every cycle / shell-append / status verify / time from command); 核心设计.md and collaboration-log format reference (zh/en) 3 rules (time rule placed in timezone-standard / format-reference rule #7, no duplicate #4); CLAUDE.md one-line summary
+- Root cause: in practice agents still used Edit/Write to modify existing log entries, and times showed 10:XX (from memory, not command output)
+- Time-rule de-dup: 核心设计.md and collaboration-log format reference (zh/en) delete redundant hard-rule #4 (time from command); keep each doc's existing time-rule location (核心设计.md timezone-standard time-fetch, format-reference rule #7) and strengthen "no context time" — eliminates drift of two time rules in one file
+- Heredoc hang prevention: 核心设计.md and 8 reference files' shell-append rule adds "EOF end-marker must be flush-left" note, preventing shell from not recognizing the marker and hanging
+- SKILL.md consistency: init collaboration-log first entry changed to shell append (old "Write to" literally conflicted with hard rule); safety checklist adds shell-append requirement
+- README.md consistency: design principle #8 and collaboration-log note add shell-append requirement, aligning with CLAUDE.md
+- Shell-append hard rule and Write/Edit ban retained (intentionally hardened, not reverted); V0.4.2→V0.4.4 missing V0.4.3 is historical legacy (V0.1.3→V0.1.5 same gap, suspected intentional skip), not backfilled

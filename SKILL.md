@@ -81,7 +81,7 @@ For Chinese projects, adapt the section titles and content to Chinese while main
 
 ## Collaboration Log Initial Entry
 
-Write to `.pre/{project_name}/{log_file}` creating the initial entry with proper language (Chinese for lang=zh, English for lang=en).
+Create the initial entry by appending to `.pre/{project_name}/{log_file}` via shell append (`cat >> .pre/{project_name}/{log_file} <<'EOF'` ... `EOF`) with proper language (Chinese for lang=zh, English for lang=en). Do not use Write/Edit tools.
 
 Time format: `[YYYY-MM-DD HH:MM]`, must execute `date +"%Y-%m-%d %H:%M"`. **Timezone**: Confirm with user during initialization, record in project goals Notes.
 
@@ -193,6 +193,6 @@ After Step 2 confirmation, before generating documents, ask user whether to enab
 ## Safety and Integrity Checks
 
 1. **Do not overwrite existing files**
-2. **Collaboration log is append-only**
+2. **Collaboration log is append-only via shell append** — log entries must be written using shell append (`cat >> file <<'EOF'`), never Write/Edit tools; this guarantees new content is only added at the end
 3. **Project goals document protected**
 4. **Code directory creation**: Create default code directory if not exists

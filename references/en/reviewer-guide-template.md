@@ -89,8 +89,9 @@ flowchart TD
 ## Log Operation Hard Rules
 
 1. **Read every cycle**: At the start of every cycle, read the full collaboration log content to get the latest status code — never infer status from memory or conversation context
-2. **Append only, never modify**: New entries must only be appended at the end of the file — never modify, delete, or replace existing entries. Do NOT use Write to rewrite the entire file (this loses existing content). Do NOT use Edit to modify existing lines
+2. **Shell append only**: Writing to the collaboration log MUST use shell append commands (`cat >> log_file_path <<'EOF'` ... `EOF`). Do NOT use Write tool to rewrite the entire file. Do NOT use Edit tool to modify existing lines. Shell append operations inherently only write at the end of the file — they cannot modify existing content. Note: the closing `EOF` delimiter must be at column 0 (no leading whitespace); otherwise the shell will not recognize it as the terminator and the command will hang until timeout
 3. **Verify status before action**: Confirm the last status code in the log matches your action condition before acting. If status doesn't match, skip this cycle and do not write anything
+4. **Time from command output**: Before writing a log entry, MUST execute `date +"%Y-%m-%d %H:%M"` to get system time, and use the command output directly as the entry time field — never fill time from memory or conversation context
 
 ## Status Declaration Specification
 
@@ -108,9 +109,12 @@ Review output is the review conclusion in the collaboration log entry — no sta
 
 ## Output Specification
 
+Log entries are review conclusions, not full review reports. When rejecting, give modification direction — don't list every problem detail. The Executor self-corrects based on direction.
+
 ```markdown
 ## [time] Reviewer — <action description>
-- Content lines (within 5 lines)
+- Conclusion: [approved/rejected, 1 line]
+- Reason: [core highlights, 1-2 lines]
 - Status: <status_code>
 ```
 
