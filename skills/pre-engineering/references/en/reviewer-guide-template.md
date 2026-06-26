@@ -247,6 +247,15 @@ Important: `.pre/` is excluded via `.gitignore` by default (agents always have a
 
 **Commit message format**: `V{date}-{time} V{version} - [summary]`
 
+## Loop Exit (DONE)
+
+When log status is `DONE`, the project is fully delivered — beyond skipping per the state table, self-cancel your role's `/loop` (no job-ID registration needed):
+
+1. Call `CronList` and find your session's `/loop` job (its prompt contains your guide filename; usually the only entry in your session)
+2. Execute `CronDelete <that job id>` to cancel the loop
+
+Once cancelled it won't fire again; if `CronList` is empty or no match, the loop is already stopped — no action needed.
+
 ## Loop Prevention Mechanism
 
 **Rule**: After rejecting Executor on the same requirement **3 consecutive times**, declare loop blockage and change status to `PLN_WAIT`.

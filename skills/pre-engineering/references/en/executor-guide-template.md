@@ -149,6 +149,15 @@ After completion, self-check deliverables against this checklist — **all items
 - [ ] Aligns with project goals document constraints?
 - [ ] Complies with project technical constraints?
 
+## Loop Exit (DONE)
+
+When log status is `DONE`, the project is fully delivered — beyond skipping per the state table, self-cancel your role's `/loop` (no job-ID registration needed):
+
+1. Call `CronList` and find your session's `/loop` job (its prompt contains your guide filename; usually the only entry in your session)
+2. Execute `CronDelete <that job id>` to cancel the loop
+
+Once cancelled it won't fire again; if `CronList` is empty or no match, the loop is already stopped — no action needed.
+
 ## Loop Prevention Mechanism
 
 **Rule**: After Reviewer rejects Executor on the same requirement 3 consecutive times, a "loop blockage" marker appears in the log, status reverts to `PLN_WAIT`.

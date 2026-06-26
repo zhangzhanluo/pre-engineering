@@ -86,6 +86,7 @@ skills/pre-engineering/
 
 - **Language Detection**: Auto-detects Chinese/English from user input
 - **Loop Prevention**: 3 consecutive rejections trigger blockage → PLN_WAIT
+- **Loop Exit**: On DONE, each agent self-cancels its /loop at runtime (CronList + CronDelete) — no job-ID registration in the log
 - **Version Recording**: Reviewer manages git commit after execution reviews (no stash — direct commit)
 - **Code Conciseness**: Reviewer enforces strict quality standards
 
@@ -179,6 +180,7 @@ skills/pre-engineering/
 
 - **语言检测**：从用户输入自动检测中/英文
 - **循环阻断**：连续驳回3次触发阻断 → PLN_WAIT
+- **循环退出**：DONE 后各角色运行时自主取消 /loop（CronList + CronDelete），不在日志登记 job ID
 - **版本记录**：审核者审核通过后直接 git commit（不使用 stash）
 - **代码简洁性**：审核者严格审核，大胆驳回冗余和膨胀
 

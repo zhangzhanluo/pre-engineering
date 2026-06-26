@@ -158,7 +158,7 @@ Present equivalent instructions in Chinese, with file names and paths adapted ac
 | Add requirements | Add items to `.pre/{project_name}/{goals_file}` | Planner identifies and proposes |
 | Pause project | Write "currently paused" in Notes | Planner recognizes and skips |
 
-**DONE condition**: Planner declares no new requirements → Reviewer confirms → DONE.
+**DONE condition**: Planner declares no new requirements → Reviewer confirms → DONE. On DONE, each agent self-cancels its own /loop at runtime (CronList + CronDelete — no job-ID registration in the log; see each role guide's Loop Exit section).
 
 ---
 
