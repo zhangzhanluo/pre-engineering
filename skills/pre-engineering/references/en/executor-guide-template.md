@@ -151,12 +151,7 @@ After completion, self-check deliverables against this checklist — **all items
 
 ## Loop Exit (DONE)
 
-When log status is `DONE`, the project is fully delivered — beyond skipping per the state table, self-cancel your role's `/loop` (no job-ID registration needed):
-
-1. Call `CronList` and find your session's `/loop` job (its prompt contains your guide filename; usually the only entry in your session)
-2. Execute `CronDelete <that job id>` to cancel the loop
-
-Once cancelled it won't fire again; if `CronList` is empty or no match, the loop is already stopped — no action needed.
+When log status is `DONE`, the project is fully delivered — just skip this cycle per the state table. You no longer run as a self-driven `/loop`; the Supervisor handles project shutdown on DONE (stops spawning roles, CronDeletes itself). You must not attempt to cancel any loop task yourself.
 
 ## Loop Prevention Mechanism
 

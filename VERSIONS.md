@@ -165,3 +165,9 @@ V20260626-1759 V0.5.1
 - Restore DONE loop self-exit as a follow-up to V0.5.0: add "循环退出（DONE）/ Loop Exit (DONE)" section to all 6 role templates (zh/en) — on DONE, the agent calls CronList to find its session's /loop job (prompt contains its guide filename; session-only crons mean each agent session has exactly one) and CronDelete it; no job-ID registration in the collaboration log (V0.5.0's removal stands)
 - SKILL.md DONE condition + README Key Mechanisms (zh/en) note the runtime self-exit (CronList + CronDelete, no registration)
 - Root cause: V0.5.0 removed DONE auto-exit together with the job-ID registration it depended on (agent had read its own id from the log); user wanted DONE self-cancel back WITHOUT restoring the log-polluting registration — runtime CronList discovery decouples self-exit from any job-ID recording. Verified CronList returns id + prompt text; CronCreate default is session-only, so each agent's /loop is the sole cron in its session
+V20260630-1844 V1.0.0
+- 监督者驱动架构重设计（破坏性 major）：新增第 4 角色「监督者」（zh/en 监督者指导模板）；启动从「/loop 三终端」改为「主智能体建 6 文档后 CronCreate 起监督者 cron，每轮 headless claude -p --resume 拉起该动角色并监控」；三角色不再 /loop 自驱，「循环退出（DONE）」节改写为 DONE 跳过本轮、监督者停摆
+- state.json（.pre/{project}/.supervisor/）管角色 session-id/模型/失败计数/cron job-id；故障模型 consecutive_failures(3→升级修复/可硬重启换 session-id)/fix_attempts(3→熔断 blocked)/成功归零；DONE 时监督者 CronDelete 自身停摆
+- 角色轮询 prompt 强化（headless 自治：自主读目标/日志/代码、不得提问）+ 拉起限时（~4min 超时视同非零退出计入 consecutive_failures）；SKILL.md 启动节重写 Phase1(6文档)+Phase2(state.json+CronCreate)；状态体系/日志格式参考增 DONE-by-supervisor 与监督者控制条目（修复/熔断/停摆，均以状态码结尾）
+- e2e toy 实测：happy path（PLN_WAIT→规划者自主读目标写 PLN_ING+REV_WAIT、监督者判成功轮不写控制条目、更新 state.json）+ DONE 自动停摆两路径全链路通过；故障检测逻辑经审阅正确（退出码非0/无新条目/*_ING 滞留→consecutive_failures++），hang 拉起缝隙已加限时条款堵住
+- 破坏性：旧「/loop 三终端 + 角色 DONE 自取消」工作流不再支持，升级后改用监督者单点 cron 启动

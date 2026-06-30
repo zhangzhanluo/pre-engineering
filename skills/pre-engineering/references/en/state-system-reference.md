@@ -40,6 +40,8 @@ stateDiagram-v2
 
 `DONE` achievement condition: Planner, under `PLN_WAIT` status, reads the project goals document, determines there are no new requirements, submits a "no new requirements" declaration and declares status `REV_WAIT`. Reviewer reviews this declaration, confirms all project goals have been delivered, then declares `DONE`.
 
+> `DONE` is declared by the Reviewer. Once declared, the Supervisor detects `DONE` on its next cycle and shuts the project down: stops spawning all roles, CronDeletes its own cron, and logs `Supervisor — project DONE, supervisor shutdown` (`Status: DONE`). Role agents no longer self-cancel loops (see each role guide's Loop Exit section).
+
 ## Three-Role Behavior Matrix
 
 | Status | Planner | Executor | Reviewer |

@@ -43,6 +43,16 @@ Reviewer:
 - Status: <status_code>
 ```
 
+## Supervisor Control Entries
+
+The Supervisor is a legitimate author of the collaboration log; it writes only control entries (no project work content). Control entries follow the same rules — append-only, written via shell `cat >>`, time from `date +"%Y-%m-%d %H:%M"`, and end with `Status: <status_code>` (for repair/circuit-break, the current unchanged status code; for shutdown, `DONE`):
+
+- repair: `## [time] Supervisor — repair: <role> <action and reason>`, `Status: <current status code>`
+- circuit-break: `## [time] Supervisor — <role> BLOCKED: <reason>`, `Status: <current status code>`
+- shutdown: `## [time] Supervisor — project DONE, supervisor shutdown`, `Status: DONE`
+
+The diagnostic process is not written to the log.
+
 ## Status Declaration Line Format
 
 `Status: <status_code>` — The status code is the sole basis for agents to determine execution conditions; it must exactly match one of the 7 fixed status codes.

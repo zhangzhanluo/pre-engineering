@@ -1,11 +1,11 @@
 ---
 name: pre-engineering
-description: "PRE Engineering — Set up a Plan-Review-Execute multi-agent collaborative framework for any project. Three AI agent roles (Planner, Executor, Reviewer) work together through a shared collaboration log to continuously deliver project goals. TRIGGER when: user wants multiple AI agents to collaborate on a project, mentions PRE system, PRE Engineering, Plan-Review-Execute, wants to divide AI work into planning/execution/review roles, wants agents to coordinate via a shared log, wants to set up Planner/Executor/Reviewer guide documents, wants to start a loop-driven multi-agent workflow, asks how to make AI roles work together, mentions collaborative agents or multi-agent workflow, says things like 'let AI help me divide work', 'I want different AI roles to collaborate', 'set up a collaborative project', or expresses any multi-agent or team-of-AIs intent — even without explicitly mentioning PRE."
+description: "PRE Engineering — Set up a Plan-Review-Execute multi-agent collaborative framework for any project. A Supervisor (the main agent) dispatches three AI role loops (Planner, Executor, Reviewer) through a shared collaboration log to continuously deliver project goals; the Supervisor monitors role health and repairs/restarts failed roles. TRIGGER when: user wants multiple AI agents to collaborate on a project, mentions PRE system, PRE Engineering, Plan-Review-Execute, wants to divide AI work into planning/execution/review roles, wants agents to coordinate via a shared log, wants to set up Planner/Executor/Reviewer guide documents, wants to start a supervisor-driven multi-agent workflow, asks how to make AI roles work together, mentions collaborative agents or multi-agent workflow, says things like 'let AI help me divide work', 'I want different AI roles to collaborate', 'set up a collaborative project', or expresses any multi-agent or team-of-AIs intent — even without explicitly mentioning PRE."
 ---
 
 # PRE Engineering
 
-Set up a multi-agent collaborative framework where three AI roles — Planner, Executor, Reviewer — coordinate through a shared collaboration log to continuously deliver project goals.
+Set up a multi-agent collaborative framework where a Supervisor (the main agent) dispatches three AI roles — Planner, Executor, Reviewer — through a shared collaboration log to continuously deliver project goals. The Supervisor monitors role health, repairs runtime failures, and restarts roles.
 
 PRE is not a standalone project — it's a framework you add to an existing project to enable multi-agent collaboration. Think of it as giving your project a "team of AI workers" with clear role divisions and a shared communication channel.
 
@@ -31,6 +31,7 @@ Set `lang` variable: `zh` or `en`. This determines template path and document fi
 | Planner guide | 规划者指导.md | planner-guide.md |
 | Executor guide | 执行者指导.md | executor-guide.md |
 | Reviewer guide | 审核者指导.md | reviewer-guide.md |
+| Supervisor guide | 监督者指导.md | supervisor-guide.md |
 | Template dir | references/zh/ | references/en/ |
 
 ## Step 1: Collect Project Name + All Requirements
@@ -50,7 +51,7 @@ After collection, refine requirements: remove duplicates, normalize descriptions
 
 ## Step 2: Confirm Draft & Generate Documents
 
-Synthesize collected information into a project goals document draft, present to user for final confirmation. Upon confirmation, generate all 5 core documents.
+Synthesize collected information into a project goals document draft, present to user for final confirmation. Upon confirmation, generate all 6 core documents (goals, log, planner/executor/reviewer/supervisor guides).
 
 The user must be satisfied with the project goals document before proceeding — this document drives all subsequent agent work, so getting it right matters.
 
@@ -85,17 +86,18 @@ Create the initial entry by appending to `.pre/{project_name}/{log_file}` via sh
 
 Time format: `[YYYY-MM-DD HH:MM]`, must execute `date +"%Y-%m-%d %H:%M"`. **Timezone**: Confirm with user during initialization, record in project goals Notes.
 
-The initial entry declares `PLN_WAIT` status, which triggers the Planner to start the first planning cycle — this is how the project begins.
+The initial entry declares `PLN_WAIT` status, which triggers the first planning cycle — this is how the project begins.
 
 ## Agent Guide Document Generation
 
-Generate three agent guide documents from templates in `references/{lang}/`:
+Generate four agent guide documents from templates in `references/{lang}/` (Planner, Executor, Reviewer, Supervisor):
 
 | Guide | Template (`lang=zh`) | Template (`lang=en`) |
 |-------|---------------------|---------------------|
 | Planner | references/zh/规划者指导模板.md | references/en/planner-guide-template.md |
 | Executor | references/zh/执行者指导模板.md | references/en/executor-guide-template.md |
 | Reviewer | references/zh/审核者指导模板.md | references/en/reviewer-guide-template.md |
+| Supervisor | references/zh/监督者指导模板.md | references/en/supervisor-guide-template.md |
 
 **Generation steps**:
 1. Read the corresponding template file from `references/{lang}/`
@@ -108,19 +110,40 @@ Generate three agent guide documents from templates in `references/{lang}/`:
 
 ## Startup Instructions
 
-After all documents are generated, present startup instructions in the selected language (Chinese for lang=zh, English for lang=en).
+After all documents are generated, the main agent (this session) becomes the Supervisor and starts the loop itself — no need to open 3 terminals.
 
-### For English Projects (lang=en):
+**Phase 1 — generate 6 documents** (Steps 0-2 above, now including the supervisor guide):
+- `.pre/{project_name}/{goals_file}`
+- `.pre/{project_name}/{log_file}` — initial `PLN_WAIT` entry
+- `.pre/{project_name}/{planner_guide}` / `{executor_guide}` / `{reviewer_guide}`
+- `.pre/{project_name}/{supervisor_guide}` — **NEW** (from `references/{lang}/监督者指导模板.md` / `supervisor-guide-template.md`)
 
-**PRE Engineering initialization complete!** Files generated:
+**Phase 2 — initialize supervisor state**
 
-- `.pre/{project_name}/{goals_file}` — Project requirements (only humans can modify)
-- `.pre/{project_name}/{log_file}` — Initial PLN_WAIT entry
-- `.pre/{project_name}/{planner_guide}` — Planner guide
-- `.pre/{project_name}/{executor_guide}` — Executor guide
-- `.pre/{project_name}/{reviewer_guide}` — Reviewer guide
+1. Allocate one stable session-id per role (UUID). Write `.pre/{project_name}/.supervisor/state.json`:
+```json
+{
+  "supervisor_cron_job_id": "",
+  "roles": {
+    "Planner": {"session_id":"<uuid>","model":"<planner-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"},
+    "Executor": {"session_id":"<uuid>","model":"<executor-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"},
+    "Reviewer": {"session_id":"<uuid>","model":"<reviewer-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"}
+  }
+}
+```
+   Role keys: `Planner`/`Executor`/`Reviewer` for `lang=en`; `规划者`/`执行者`/`审核者` for `lang=zh` (match the supervisor guide). Default models: Planner=aliyun/Kimi-K2.5, Executor=aliyun/qwen3.7-max, Reviewer=aliyun/kimi-k2.7-code (override in project goals Notes).
 
-**IMPORTANT: Git baseline setup**
+2. `CronCreate` a durable recurring job (every 3 min) with prompt:
+   `Read {PROJECT_ROOT}/.pre/{project_name}/{supervisor_guide} and run one supervisor cycle.`
+3. Write the returned job-id into `state.json.supervisor_cron_job_id`.
+4. Append to the collaboration log (time via `date +"%Y-%m-%d %H:%M"`):
+   - `lang=zh`: `## [<time>] 人工 — 监督者已启动，三角色循环由监督者调度`
+   - `lang=en`: `## [<time>] Human — Supervisor started; three role loops are dispatched by the Supervisor`
+   End with `状态：PLN_WAIT` / `Status: PLN_WAIT`.
+
+**Keep this session open and idle.** The supervisor cron fires while idle; each cycle it spawns the active role via `claude -p --resume <session-id> --model X` (first run uses `--session-id`), monitors, repairs runtime issues, restarts, and circuit-breaks per the supervisor guide. On `DONE`, the supervisor CronDeletes itself and shuts down — no manual cancel needed.
+
+### Git baseline setup
 
 `.pre/` is excluded via `.gitignore` by default. This ensures agents can always access collaboration documents on disk. Two options:
 
@@ -131,21 +154,6 @@ cd {project_directory_path}
 git add .pre/{project_name}/
 git commit -m "PRE initialization: collaboration documents baseline"
 ```
-
-**Launch agents** (3 separate terminals/sessions):
-
-1. **Planner** (strong reasoning model):
-   `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{planner_guide} and follow its instructions as the Planner role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
-
-2. **Executor** (fast coding model):
-   `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{executor_guide} and follow its instructions as the Executor role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
-
-3. **Reviewer** (thorough review model):
-   `/loop 3m "Read {PROJECT_ROOT}/.pre/{project_name}/{reviewer_guide} and follow its instructions as the Reviewer role. Each cycle starts by reading {PROJECT_ROOT}/.pre/{project_name}/{log_file} to check the latest status."`
-
-### For Chinese Projects (lang=zh):
-
-Present equivalent instructions in Chinese, with file names and paths adapted accordingly. Refer to references/zh/ template files for localized content.
 
 ---
 
@@ -158,7 +166,7 @@ Present equivalent instructions in Chinese, with file names and paths adapted ac
 | Add requirements | Add items to `.pre/{project_name}/{goals_file}` | Planner identifies and proposes |
 | Pause project | Write "currently paused" in Notes | Planner recognizes and skips |
 
-**DONE condition**: Planner declares no new requirements → Reviewer confirms → DONE. On DONE, each agent self-cancels its own /loop at runtime (CronList + CronDelete — no job-ID registration in the log; see each role guide's Loop Exit section).
+**DONE condition**: Planner declares no new requirements → Reviewer confirms → DONE. On DONE, the Supervisor detects it next cycle, stops spawning all roles, CronDeletes its own cron, and logs shutdown. Role agents no longer self-cancel loops (see each role guide's Loop Exit section).
 
 ---
 
@@ -167,6 +175,8 @@ Present equivalent instructions in Chinese, with file names and paths adapted ac
 - **Blocking rule**: 3 consecutive rejections on same requirement → loop blockage, revert to `PLN_WAIT`
 - **Planner**: Re-split or adjust requirement
 - **Executor**: Stop retrying, wait for new requirements
+
+> Note: the 3-consecutive-rejection blockage is a role-level protocol mechanism, separate from the Supervisor's own failure circuit-break (`fix_attempts=3` → role blocked). Both coexist.
 
 ## Version Recording Mechanism
 
@@ -178,7 +188,7 @@ After Step 2 confirmation, before generating documents, ask user whether to enab
 
 **If enabled**:
 1. Verify `.pre/` is in `.gitignore`. If NOT present, add `.pre/` to `.gitignore` first (unless user wants to track `.pre/{project_name}/`). This check is mandatory — collaboration documents must not be accidentally committed.
-2. Before starting agents, commit current project state as baseline.
+2. Before starting the supervisor, commit current project state as baseline.
 3. After each execution review passes:
    - Auto-infer version info from project (check existing VERSIONS.md, CHANGELOG.md, or similar). If none found, create `VERSIONS.md`.
    - Commit directly with version information in commit message.
@@ -191,3 +201,4 @@ After Step 2 confirmation, before generating documents, ask user whether to enab
 1. **Collaboration log is append-only via shell append** — log entries must be written using shell append (`cat >> file <<'EOF'`), never Write/Edit tools; this guarantees new content is only added at the end
 2. **Project goals document protected**
 3. **Code directory creation**: Create default code directory if not exists
+4. **Supervisor state file** `.pre/{project_name}/.supervisor/state.json` holds runtime state (role session-ids, failure counters, cron job-id) — it is read/written by the Supervisor only, lives under gitignored `.pre/`, and is the recovery basis if the supervisor cron is lost
