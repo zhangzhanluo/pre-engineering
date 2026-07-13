@@ -94,6 +94,18 @@ Log entries are change summaries, not full code explanations. Code details, impl
 - Status: <status_code>
 ```
 
+## Undelivered Scenario (implementation complete but some acceptance criteria unmet)
+
+Do NOT turn the log into an "experiment report" by laying out full root-cause analysis, self-test data, and improvement suggestions — keep the 5-line ceiling and the template above, compressing "undelivered + one-sentence root cause + one-sentence next-round direction" into a single `Undelivered` line. Put detailed reasoning and data in code comments or local notes; the Reviewer verifies by reading code and re-running tests — the log keeps only the honest declaration.
+
+```markdown
+## [time] Executor — <action description>
+- Deliverable: [file paths, 1 line]
+- Changes: [key change highlights, 1-2 lines]
+- Undelivered: [unmet acceptance point + 1-sentence root cause + 1-sentence next-round direction, 1 line]
+- Status: <status_code>
+```
+
 ## Quality Self-Check
 
 **Before writing to the log (anti-bloat)**: Is the whole entry ≤5 lines? Do Deliverable/Changes contain only file paths + change summary — no code details, no implementation process, no design decisions (the Reviewer reads actual code)? If over the limit or containing prohibited content, trim back to summary only.

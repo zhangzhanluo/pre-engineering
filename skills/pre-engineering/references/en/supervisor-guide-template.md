@@ -57,11 +57,12 @@ Per-role counters (in state.json): `consecutive_failures`, `fix_attempts`, `stat
 **Failure** (any one, `consecutive_failures++`):
 - Exit code non-zero;
 - Spawned, exit code 0, but no new entry from that role in the log this cycle (no output / stuck);
-- Latest status is that role's `*_ING` (did not finish last cycle).
+- Latest status is that role's `*_ING` (did not finish last cycle);
+- Spawned, exit code 0, new entry present, but the new entry has **severe format violations** — status code embedded in the title line (e.g. `## time Executor EXE_ING`), no standalone `- Status: <code>` line at the end, or a single entry exceeding 10 content lines.
 
 **Handling**:
 - `consecutive_failures` < 3: **soft restart** — record in state.json only, re-spawn next cycle with the same session-id (do not write the log).
-- `consecutive_failures` = 3: **escalated repair** — `fix_attempts++`; read the failure stdout/stderr + relevant log section to diagnose; repair runtime issues (corrupted log entry / missing file / state corruption); if the role's context is judged corrupted, **hard restart** (assign a new session-id for that role in state.json); append to the log `Supervisor — repair: <role> <action>`; reset `consecutive_failures` to 0.
+- `consecutive_failures` = 3: **escalated repair** — `fix_attempts++`; read the failure stdout/stderr + relevant log section to diagnose; repair runtime issues (corrupted log entry / format violation / missing file / state corruption); if the role's context is judged corrupted, **hard restart** (assign a new session-id for that role in state.json); append to the log `Supervisor — repair: <role> <action>` (for format violations, `<action>` is "format correction", restating the current true status code, **never modifying historical entries**); reset `consecutive_failures` to 0.
 - `fix_attempts` = 3 and this cycle still fails: **circuit-break** — set that role's `status=blocked` in state.json; append to the log `Supervisor — <role> BLOCKED: <reason>`; stop spawning it; keep monitoring other roles. **Do not notify the human.**
 
 **Successful cycle** (exit code 0 and a new entry from that role in the log): reset `consecutive_failures` to 0, `fix_attempts` to 0.
