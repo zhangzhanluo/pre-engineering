@@ -1,5 +1,7 @@
 # PRE State System Reference
 
+> This file is the sole authoritative definition of the state system, read by the Supervisor for scheduling decisions. Role templates no longer duplicate state-transition rules — roles are spawned by the Supervisor based on status and only need to know "which status codes my role can declare this cycle" (see each role guide's "Status Declaration" section).
+
 ## Status Code Definitions
 
 Status code format: `ROLE_ABBR_PHASE`, 7 codes total:

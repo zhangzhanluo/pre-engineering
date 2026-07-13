@@ -12,9 +12,9 @@
 
 ## Log Operation Hard Rules (Preventing Log Corruption)
 
-1. **Read actual file every cycle**: Before each action, must read the full collaboration log file content to get the latest status code — never infer from memory or conversation context, never assume "the status I saw last time is still valid"
+1. **Read actual file every spawn**: Before each action, must read the full collaboration log file content to understand the latest progress and context — never infer from memory or conversation context, never assume "the status I saw last time is still valid"
 2. **Shell append only**: When writing to the collaboration log, MUST use shell append commands (`cat >> log_file_path <<'EOF'` ... `EOF`). Do NOT use Write tool to rewrite the entire file. Do NOT use Edit tool to modify existing lines. Shell append operations inherently only write at the end of the file — they cannot modify existing content. Note: the closing `EOF` delimiter must be at column 0 (no leading whitespace); otherwise the shell will not recognize it as the terminator and the command will hang until timeout
-3. **Verify status before action**: Confirm the last status code in the log matches your role's action condition before acting. If status doesn't match, skip the cycle and do not write anything
+3. **Trailing-status misalignment fallback**: If the trailing status is severely misaligned (not your role's action window — e.g., Executor sees PLN_WAIT/REV_WAIT instead of EXE_WAIT/EXE_ING), do not write this cycle and exit directly. This is a fallback against the Supervisor mis-spawning the wrong role; normally the Supervisor spawned the right role so this does not trigger
 
 ## Per-Role Entry Format Templates
 

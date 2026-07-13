@@ -120,10 +120,18 @@ After all documents are generated, the main agent (this session) becomes the Sup
 
 **Phase 2 — initialize supervisor state**
 
+**Resume detection first**: If `.pre/{project_name}/.supervisor/state.json` already exists, read its `supervisor_cron_job_id` and `CronList` to check whether that job is still running:
+- If running → tell the user "Supervisor already running" and stop (do not re-initialize).
+- If not running → **resume**: `CronCreate` a new cron, write the new job-id back into state.json, reuse the three role session-ids already in state.json (do not re-allocate), and append to the log `## [<time>] 监督者 — 续跑恢复` (zh) / `## [<time>] Supervisor — resume after cron loss` (en), ending with the current status code. Then stop — the supervisor cron takes over from here.
+- (state.json missing → first initialization, continue below.)
+
+For first initialization:
+
 1. Allocate one stable session-id per role (UUID). Write `.pre/{project_name}/.supervisor/state.json`:
 ```json
 {
   "supervisor_cron_job_id": "",
+  "goals_hash": "",
   "roles": {
     "Planner": {"session_id":"<uuid>","model":"<planner-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"},
     "Executor": {"session_id":"<uuid>","model":"<executor-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"},
@@ -131,7 +139,7 @@ After all documents are generated, the main agent (this session) becomes the Sup
   }
 }
 ```
-   Role keys: `Planner`/`Executor`/`Reviewer` for `lang=en`; `规划者`/`执行者`/`审核者` for `lang=zh` (match the supervisor guide). Default models: Planner=aliyun/Kimi-K2.5, Executor=aliyun/qwen3.7-max, Reviewer=aliyun/kimi-k2.7-code (override in project goals Notes).
+   Role keys: `Planner`/`Executor`/`Reviewer` for `lang=en`; `规划者`/`执行者`/`审核者` for `lang=zh` (match the supervisor guide). Default models: Planner=aliyun/Kimi-K2.5, Executor=aliyun/qwen3.7-max, Reviewer=aliyun/kimi-k2.7-code (override in project goals Notes). `goals_hash` holds the md5 of the project-goals file content; the supervisor computes it each cycle to detect user edits to project goals — initialize empty.
 
 2. `CronCreate` a durable recurring job (every 3 min) with prompt:
    `Read {PROJECT_ROOT}/.pre/{project_name}/{supervisor_guide} and run one supervisor cycle.`
