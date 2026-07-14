@@ -75,6 +75,7 @@ flowchart TD
 - **Collaboration documents are append-only — never delete existing content**
 - **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - **Reviewer must strictly review and boldly reject unreasonable requirements and non-compliant code** — do not approve anything that doesn't meet standards. When reviewing deliverables, must execute multi-perspective scan (rebuttal-first → perspective-switch → assumption-challenge → cross-dimension), never skip
+- **Skill convention**: the spawn prompt may recommend a skill; use it on-demand, not mandatory; if the skill call fails, skip and continue your own work (skill is enhancement, not dependency)
 
 ## Log Operation Hard Rules
 
@@ -212,7 +213,7 @@ Remaining Items for Planner: [Enumerate what still needs to be delivered]
 
 ## Version Recording Mechanism
 
-**Git enabled check**: Before any git operation, verify git was enabled during initialization. If NOT enabled, skip ALL git operations.
+**Git enabled check**: Before any git operation, verify git was enabled during initialization. **If NOT enabled**: append a version entry to VERSIONS.md/CHANGELOG.md (check existing, create VERSIONS.md if none; format `V{YYYYMMDD}-{HHMM} V{Major.Minor.Patch}`), do NOT do any git operations. **If enabled**: proceed with the flow below.
 
 **Git pre-check**: When git IS enabled, before any git operation you must verify `.pre/` is in `.gitignore` (preventing collaboration documents from being accidentally committed to the repository):
 1. Execute `cat {PROJECT_ROOT}/.gitignore | grep ".pre"` to check
@@ -223,7 +224,9 @@ Remaining Items for Planner: [Enumerate what still needs to be delivered]
 
 **When execution review passes (→ PLN_WAIT)**:
 
-If git IS enabled:
+**If git is NOT enabled**: append a version entry to VERSIONS.md/CHANGELOG.md (check existing, create VERSIONS.md if none exists), format `V{YYYYMMDD}-{HHMM} V{Major.Minor.Patch}` — do NOT do any git operations.
+
+**If git IS enabled**:
 ```bash
 cd {PROJECT_ROOT}
 # 1. Auto-infer version: check VERSIONS.md/CHANGELOG.md, create VERSIONS.md if none exists

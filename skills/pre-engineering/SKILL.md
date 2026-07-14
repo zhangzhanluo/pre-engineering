@@ -42,6 +42,10 @@ Collect project information via an interactive prompt: project name, overview, f
 
 Set `project_name` variable from user input. All documents will be placed in `.pre/{project_name}/`.
 
+**Code location** (ask the user): whether code is local or remote.
+- Local → set `code_location=local`, code path = `{PROJECT_ROOT}`.
+- Remote → set `code_location=remote`, collect `{REMOTE_HOST}` + `{REMOTE_PATH}` (remote code path) + optional env script path (e.g. `~/env.sh`). Note: `.pre/` collaboration documents stay local at `{PROJECT_ROOT}`; only the code may be remote.
+
 **Information Inference Rules**:
 - Auto-scan README.md, design docs, package.json, requirements.txt, etc. to extract overview and tech stack — this saves the user from repeating what's already in their project
 - If project directory has structured requirements, extract feature list directly
@@ -104,9 +108,14 @@ Generate four agent guide documents from templates in `references/{lang}/` (Plan
 2. Replace all placeholders with project-specific values:
    - `{PROJECT_NAME}` → project name collected in Step 1
    - `{PROJECT_ROOT}` → absolute path to the project root directory (e.g., `/home/user/my-project`)
+   - `{CODE_LOCATION}` (in the three role templates' "Project Code Path" section only):
+     - Local → replace with `{PROJECT_ROOT}`
+     - Remote → replace with a multi-line SSH block: `Remote server {REMOTE_HOST} / remote code path {REMOTE_PATH} / access via ssh {REMOTE_HOST} '<cmd>' / headless must use bash -lic '<cmd>' or source env script first (e.g. source ~/env.sh); never source ~/.bashrc (contains [ -z "$PS1" ] && return non-interactive guard, NPU/conda env vars won't load)`
    - If user specified a non-default code directory (e.g., `src/`), additionally replace `{PROJECT_ROOT}` in the **Project Code Path** section only with `{PROJECT_ROOT}/{custom_dir}` (e.g., `{PROJECT_ROOT}/src`)
 3. Write to the corresponding guide document in `.pre/{project_name}/`
 4. Check for existing files before overwriting
+
+Note: `.pre/` collaboration document paths in templates stay `{PROJECT_ROOT}` (collaboration docs are local even when code is remote) — only the role templates' "Project Code Path" section uses `{CODE_LOCATION}`. The supervisor template's "Project root" stays `{PROJECT_ROOT}` (`.pre/` lives there); the supervisor senses code location via `state.json.code_location` and audits via SSH.
 
 ## Startup Instructions
 
@@ -132,17 +141,30 @@ For first initialization:
 {
   "supervisor_cron_job_id": "",
   "goals_hash": "",
+  "code_location": "local",
+  "remote_host": "",
+  "remote_path": "",
+  "skills_hash": "",
+  "skills_inventory": [],
+  "last_explore_round": 0,
+  "explore_interval_rounds": 5,
+  "current_round": 0,
+  "trusted_skill_sources": ["<superpowers marketplace url>"],
+  "searched_queries": [],
   "roles": {
-    "Planner": {"session_id":"<uuid>","model":"<planner-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"},
-    "Executor": {"session_id":"<uuid>","model":"<executor-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"},
-    "Reviewer": {"session_id":"<uuid>","model":"<reviewer-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"status":"active"}
+    "Planner": {"session_id":"<uuid>","model":"<planner-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"consecutive_ing_rounds":0,"spawn_timeout_sec":240,"status":"active"},
+    "Executor": {"session_id":"<uuid>","model":"<executor-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"consecutive_ing_rounds":0,"spawn_timeout_sec":240,"status":"active"},
+    "Reviewer": {"session_id":"<uuid>","model":"<reviewer-model>","last_exit_code":0,"last_run_time":"","consecutive_failures":0,"fix_attempts":0,"consecutive_ing_rounds":0,"spawn_timeout_sec":240,"status":"active"}
   }
 }
 ```
-   Role keys: `Planner`/`Executor`/`Reviewer` for `lang=en`; `规划者`/`执行者`/`审核者` for `lang=zh` (match the supervisor guide). Default models: Planner=aliyun/Kimi-K2.5, Executor=aliyun/qwen3.7-max, Reviewer=aliyun/kimi-k2.7-code (override in project goals Notes). `goals_hash` holds the md5 of the project-goals file content; the supervisor computes it each cycle to detect user edits to project goals — initialize empty.
+   Role keys: `Planner`/`Executor`/`Reviewer` for `lang=en`; `规划者`/`执行者`/`审核者` for `lang=zh` (match the supervisor guide). Default models: Planner=aliyun/Kimi-K2.5, Executor=aliyun/qwen3.7-max, Reviewer=aliyun/kimi-k2.7-code (override in project goals Notes). `goals_hash` holds the md5 of the project-goals file content; the supervisor computes it each cycle to detect user edits to project goals — initialize empty. `code_location`/`remote_host`/`remote_path` set per Step 1 (local by default). `skills_inventory`/`skills_hash`/`last_explore_round`/`explore_interval_rounds`/`current_round`/`trusted_skill_sources`/`searched_queries` enable on-demand skill discovery (the supervisor scans local skill dirs + searches online when triggered; see supervisor guide "Skill Discovery & Recommendation"). Per-role `consecutive_ing_rounds`/`spawn_timeout_sec` support long-task cross-cycle resume (set `spawn_timeout_sec` larger for deployment/install roles).
+
+1b. **First skill inventory scan** (new): scan `~/.claude/skills/`, `~/.claude/plugins/cache/*/skills/`, `{PROJECT_ROOT}/.claude/skills/`; read each `SKILL.md` frontmatter (`name`+`description`); write the inventory into `state.json.skills_inventory`, compute `skills_hash`, set `last_explore_round=0`/`current_round=0`. Also ensure `{PROJECT_ROOT}/.claude/skills/` is in `.gitignore` (auto-installed skills are runtime tools, not project git).
 
 2. `CronCreate` a durable recurring job (every 3 min) with prompt:
    `Read {PROJECT_ROOT}/.pre/{project_name}/{supervisor_guide} and run one supervisor cycle.`
+   Note: the supervisor cron fires only while the REPL is idle; recurring jobs auto-expire after 7 days; long-cycle (cross-day) projects must keep the session open or switch to manual wrap-up. If the prompt contains backticks/special chars, wrap the whole prompt in single quotes to avoid command substitution; prefer baking discipline into role `.md` (roles read it directly) over stuffing the spawn prompt.
 3. Write the returned job-id into `state.json.supervisor_cron_job_id`.
 4. Append to the collaboration log (time via `date +"%Y-%m-%d %H:%M"`):
    - `lang=zh`: `## [<time>] 人工 — 监督者已启动，三角色循环由监督者调度`
@@ -192,7 +214,7 @@ git commit -m "PRE initialization: collaboration documents baseline"
 
 After Step 2 confirmation, before generating documents, ask user whether to enable git version recording.
 
-**If disabled**: Skip ALL git operations throughout the entire workflow.
+**If disabled**: Skip ALL git operations throughout the entire workflow. When the Reviewer's execution review passes, still append a version entry to VERSIONS.md/CHANGELOG.md (check existing, create VERSIONS.md if none; format `V{YYYYMMDD}-{HHMM} V{Major.Minor.Patch}`) — version recording continues, only git operations are skipped.
 
 **If enabled**:
 1. Verify `.pre/` is in `.gitignore`. If NOT present, add `.pre/` to `.gitignore` first (unless user wants to track `.pre/{project_name}/`). This check is mandatory — collaboration documents must not be accidentally committed.

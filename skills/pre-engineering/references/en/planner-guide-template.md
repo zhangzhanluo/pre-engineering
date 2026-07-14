@@ -19,8 +19,8 @@ Each spawn starts by reading the log to understand the latest progress and conte
 Must re-read the latest version on every spawn — the user may modify this file to steer project direction; never use a cached old version from context. **Do not modify this document**.
 
 ## Project Code Path
-{PROJECT_ROOT}
-Read the latest code on each spawn as needed.
+{CODE_LOCATION}
+Read the latest code on each spawn as needed. Local: `{PROJECT_ROOT}`; remote: access remote code path `{REMOTE_PATH}` via `ssh {REMOTE_HOST}` (headless must use `bash -lic '<cmd>'` or `source` an env script first, never `source ~/.bashrc`).
 
 ## Scheduling Convention
 
@@ -56,6 +56,7 @@ flowchart TD
 - **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - When no new requirements exist, submit a declaration and declare `REV_WAIT` — the Reviewer confirms and enters `DONE`
 - **Planner must deeply analyze all project files before proposing requirements** — thorough understanding of goals, code, and progress is mandatory
+- **Skill convention**: the spawn prompt may recommend a skill; use it on-demand, not mandatory; if the skill call fails, skip and continue your own work (skill is enhancement, not dependency)
 
 ## Log Operation Hard Rules
 

@@ -19,8 +19,8 @@ Each spawn starts by reading the log to understand the latest progress and conte
 Must re-read the latest version on every spawn — the user may modify this file to steer project direction; never use a cached old version from context. **Do not modify this document**.
 
 ## Project Code Path
-{PROJECT_ROOT}
-Read the latest code on each spawn as needed.
+{CODE_LOCATION}
+Read the latest code on each spawn as needed. Local: `{PROJECT_ROOT}`; remote: access remote code path `{REMOTE_PATH}` via `ssh {REMOTE_HOST}` (headless must use `bash -lic '<cmd>'` or `source` an env script first, never `source ~/.bashrc`).
 
 ## Scheduling Convention
 
@@ -38,10 +38,13 @@ flowchart TD
     ReadCode --> Begin["Write to log: EXE_ING"]
     Begin --> PlanExec["Based on Planner's requirement and approach,<br/>formulate execution plan"]
     PlanExec --> Implement["Based on current code state and execution plan,<br/>code the implementation"]
-    Implement --> SelfCheck{"Does deliverable match the approach?<br/>Does it align with project goals?<br/>Is it consistent with existing code?"}
+    Implement --> CanDone{"Can finish this cycle?<br/>(long commands backgrounded / progress at checkpoint)"}
+    CanDone -->|No, needs cross-cycle| Checkpoint["Write EXE_ING checkpoint<br/>(progress + next step) + exit 0 pause<br/>next cycle --resume continues"]
+    CanDone -->|Yes| SelfCheck{"Does deliverable match the approach?<br/>Does it align with project goals?<br/>Is it consistent with existing code?"}
     SelfCheck -->|Not satisfactory| Implement
     SelfCheck -->|Satisfactory| Write["Write to log: REV_WAIT<br/>Content: deliverable file paths + key change summary"]
-    Write --> End["End cycle"]
+    Checkpoint --> End["End cycle"]
+    Write --> End
     Exit --> End
 ```
 
@@ -53,6 +56,9 @@ flowchart TD
 - **Collaboration documents are append-only — never delete existing content**
 - **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - **Executor must focus on implementation simplicity and avoid redundancy** — minimum code that solves the problem, nothing speculative
+- **Long commands must be backgrounded**: pip install / model download / compile / start-service commands must use `nohup ... &` to background, never block foreground (otherwise spawn timeout kills the process, counted as failure)
+- **Long-task cross-cycle resume**: when this cycle cannot finish, write `EXE_ING` at a clean checkpoint (content: progress + next step) + `exit 0` to pause; next cycle the Supervisor spawns with `--resume` to continue — `EXE_ING` means both "in progress" and "checkpoint pause", not a failure
+- **Skill convention**: the spawn prompt may recommend a skill; use it on-demand, not mandatory; if the skill call fails, skip and continue your own work (skill is enhancement, not dependency)
 
 ## Log Operation Hard Rules
 
