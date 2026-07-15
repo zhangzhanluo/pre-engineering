@@ -194,3 +194,7 @@ V20260714-1742 V1.0.3
 - state.json +13 fields: code_location/remote_host/remote_path/skills_hash/skills_inventory/last_explore_round/explore_interval_rounds/current_round/trusted_skill_sources/searched_queries + per-role consecutive_ing_rounds/spawn_timeout_sec; SKILL.md startup adds first skill-inventory scan step
 - Files: zh+en supervisor template (skill discovery section + long-task resume + state fields) / executor (CanDone mermaid branch + long-task rules + {CODE_LOCATION}) / planner ({CODE_LOCATION} + skill convention) / reviewer (git-disabled branch + skill convention) / SKILL.md
 - Root cause: headless claude -p skill auto-trigger recall 0% (known limit) — design is fully explicit (Bash scan + WebSearch + prompt names skill), not relying on auto-trigger
+
+V20260715-1121 V1.0.4
+- Fix V1.0.3 implementation-vs-spec gap (07-10 long-task spec B3): reviewer template "Project Code Path" section was not migrated to {CODE_LOCATION} — spec B3 main text explicitly lists 3 role templates (planner/executor/reviewer), but the spec's own change-list table omitted reviewer for B3 (only marked C); V1.0.3 impl followed the table → reviewer missed B3. Found via post-impl consistency check. Now reviewer zh+en line 22 {PROJECT_ROOT}→{CODE_LOCATION} + line 23 remote SSH note added (bash -lic/env script, never source ~/.bashrc), aligned with planner/executor format; all 3 role templates now consistent ({CODE_LOCATION} 6 occurrences across zh+en verified)
+- root=skill+2: root → V1.0.6; corresponding skill repo (github: zhangzhanluo/pre-engineering) V1.0.4

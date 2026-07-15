@@ -19,8 +19,8 @@ Each spawn starts by reading the log to understand the latest progress and conte
 Must re-read the latest version on every spawn — the user may modify this file to steer project direction; never use a cached old version from context. **Do not modify this document**.
 
 ## Project Code Path
-{PROJECT_ROOT}
-Read the latest code on each spawn as needed.
+{CODE_LOCATION}
+Read the latest code on each spawn as needed. Local: `{PROJECT_ROOT}`; remote: access remote code path `{REMOTE_PATH}` via `ssh {REMOTE_HOST}` (headless must use `bash -lic '<cmd>'` or `source` an env script first, never `source ~/.bashrc`).
 
 ## Scheduling Convention
 
