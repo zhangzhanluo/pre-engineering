@@ -198,3 +198,7 @@ V20260714-1742 V1.0.3
 V20260715-1121 V1.0.4
 - Fix V1.0.3 implementation-vs-spec gap (07-10 long-task spec B3): reviewer template "Project Code Path" section was not migrated to {CODE_LOCATION} — spec B3 main text explicitly lists 3 role templates (planner/executor/reviewer), but the spec's own change-list table omitted reviewer for B3 (only marked C); V1.0.3 impl followed the table → reviewer missed B3. Found via post-impl consistency check. Now reviewer zh+en line 22 {PROJECT_ROOT}→{CODE_LOCATION} + line 23 remote SSH note added (bash -lic/env script, never source ~/.bashrc), aligned with planner/executor format; all 3 role templates now consistent ({CODE_LOCATION} 6 occurrences across zh+en verified)
 - root=skill+2: root → V1.0.6; corresponding skill repo (github: zhangzhanluo/pre-engineering) V1.0.4
+
+V20260715-1421 V1.0.5
+- Fix minor-2 (executor template line 80): deliverable-path parenthetical {PROJECT_ROOT} -> (local: {PROJECT_ROOT}; remote: {REMOTE_PATH}), aligned with line 23 remote-note style; remote scenarios now point deliverables to {REMOTE_PATH} instead of misleading local {PROJECT_ROOT}. Out of 07-10 spec B3 scope (B3 covered lines 21-23 only), closes the remote-deliverable theoretical gap noted in V1.0.6 root changelog
+- root=skill+2: root -> V1.0.7

@@ -77,7 +77,7 @@ Only the following status codes may be declared by this role:
 - `REV_WAIT` — declared when execution is complete
 
 ## Deliverable
-Deliverable files should be placed under the project code path ({PROJECT_ROOT}), with file paths noted in the log entry.
+Deliverable files should be placed under the project code path (local: `{PROJECT_ROOT}`; remote: `{REMOTE_PATH}`), with file paths noted in the log entry.
 
 ## Output Specification
 
