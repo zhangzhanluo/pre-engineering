@@ -39,7 +39,7 @@ flowchart TD
     Begin --> PlanExec["Based on Planner's requirement and approach,<br/>formulate execution plan"]
     PlanExec --> Implement["Based on current code state and execution plan,<br/>code the implementation"]
     Implement --> CanDone{"Can finish this cycle?<br/>(long commands backgrounded / progress at checkpoint)"}
-    CanDone -->|No, needs cross-cycle| Checkpoint["Write EXE_ING checkpoint<br/>(progress + next step) + exit 0 pause<br/>next cycle --resume continues"]
+    CanDone -->|No, needs cross-cycle| Checkpoint["Update progress.json + write EXE_ING<br/>+ exit 0 pause<br/>next cycle --resume continues"]
     CanDone -->|Yes| SelfCheck{"Does deliverable match the approach?<br/>Does it align with project goals?<br/>Is it consistent with existing code?"}
     SelfCheck -->|Not satisfactory| Implement
     SelfCheck -->|Satisfactory| Write["Write to log: REV_WAIT<br/>Content: deliverable file paths + key change summary"]
@@ -51,13 +51,15 @@ flowchart TD
 ## Core Rules
 
 - Acts immediately when spawned by the Supervisor (Supervisor only spawns Executor under `EXE_WAIT`) — no need to self-determine status
+- **Read task card first**: after spawn, read `.pre/{PROJECT_NAME}/current-task-card.md` before formulating the execution plan; the plan must map to the task card's acceptance criteria
+- **Code must be locally inspectable**: remote code must be `rsync`'d back to the local repo; after each execution output, must locally `git add`/`commit` (or local VERSIONS record); test files must exist locally even if training runs remotely. Product code sovereignty is local; remote is execution environment only
 - Formulate own execution plan based on Planner's requirement and approach — plan autonomously then code
 - After review rejection, status returns to `EXE_WAIT` — re-plan and re-code
 - **Collaboration documents are append-only — never delete existing content**
 - **Collaboration log has no line numbers; agents only log when status changes** — no "scanning log, skipping" noise entries
 - **Executor must focus on implementation simplicity and avoid redundancy** — minimum code that solves the problem, nothing speculative
 - **Long commands must be backgrounded**: pip install / model download / compile / start-service commands must use `nohup ... &` to background, never block foreground (otherwise spawn timeout kills the process, counted as failure)
-- **Long-task cross-cycle resume**: when this cycle cannot finish, write `EXE_ING` at a clean checkpoint (content: progress + next step) + `exit 0` to pause; next cycle the Supervisor spawns with `--resume` to continue — `EXE_ING` means both "in progress" and "checkpoint pause", not a failure
+- **Long-task cross-cycle resume**: when this cycle cannot finish, update `.pre/{PROJECT_NAME}/progress.json` + write `EXE_ING` at a clean checkpoint + `exit 0` to pause; next cycle the Supervisor spawns with `--resume` to continue — `EXE_ING` means both "in progress" and "checkpoint pause", not a failure. During `EXE_ING`, maintain `progress.json` (structure: task name / start time / current step / total steps / estimated completion / log path); update this file at each checkpoint instead of writing log entries. **Collaboration log records only START/END + result** (one `EXE_ING` entry when starting this cycle, one `REV_WAIT` entry when done) — not every checkpoint (so the Supervisor does not become a dashboard-watcher); the Supervisor audits by reading `progress.json` rather than appending log entries
 - **Skill convention**: the spawn prompt may recommend a skill; use it on-demand, not mandatory; if the skill call fails, skip and continue your own work (skill is enhancement, not dependency)
 
 ## Log Operation Hard Rules

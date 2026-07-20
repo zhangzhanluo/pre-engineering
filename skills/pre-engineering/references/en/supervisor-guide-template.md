@@ -80,19 +80,25 @@ Scan three directories: `~/.claude/skills/`, `~/.claude/plugins/cache/*/skills/`
 
 Per-role counters (in state.json): `consecutive_failures`, `fix_attempts`, `status`, `consecutive_ing_rounds`, `spawn_timeout_sec`.
 
-**Failure** (any one, `consecutive_failures++`):
+**Failure (runtime fault, any one, `consecutive_failures++`)**:
 - Exit code non-zero;
-- Spawned, exit code 0, but no new entry from that role in the log this cycle (no output / stuck);
-- Spawned, exit code 0, new entry present, but the new entry has **severe format violations** — status code embedded in the title line (e.g. `## time Executor EXE_ING`), no standalone `- Status: <code>` line at the end, or a single entry exceeding 10 content lines.
+- Spawn timeout (no return within `spawn_timeout_sec`);
+- Process crash / killed;
+- Spawned, exit code 0, but no new entry from that role in the log this cycle (no output / stuck).
 
-(Note: `*_ING` is no longer a failure — long-task cross-cycle resume is normal, see the status-driven table and "Long-Task Progress Audit".)
+(Note: `*_ING` is not a failure — long-task cross-cycle resume is normal, see the status-driven table and "Long-Task Progress Audit".)
 
-**Handling**:
+**Content feedback (not a failure; does not go through the counter / hard-restart path)**:
+- Trigger: exit code 0, a new entry present, but the new entry has **format/quality violations** — status code embedded in the title line (e.g. `## time Executor EXE_ING`), no standalone `- Status: <code>` line at the end, a single entry exceeding 10 content lines, or content clearly disconnected from project goals / current code.
+- Handling: **does not** increment `consecutive_failures`, **does not** hard-restart (hard restart loses the role's context — treats the symptom, hurts the substance for quality issues); shell-append a control entry `Supervisor — content feedback: <role> <issue>`, restating the current true status code, asking the role to rewrite its entry next round; next cycle resume-spawn as usual with `--resume` (**do not** change session-id — keep context so it self-corrects).
+- Rationale: format/quality issues are role judgment drift, not runtime faults; keeping context to let it rewrite is more effective than restarting.
+
+**Runtime fault handling**:
 - `consecutive_failures` < 3: **soft restart** — record in state.json only, re-spawn next cycle with the same session-id (do not write the log).
-- `consecutive_failures` = 3: **escalated repair** — `fix_attempts++`; read the failure stdout/stderr + relevant log section to diagnose; repair runtime issues (corrupted log entry / format violation / missing file / state corruption); if the role's context is judged corrupted, **hard restart** (prefer hard restart at a clean checkpoint `*_ING`, not mid-task; when `--resume` across many cycles slows noticeably, may proactively hard restart — the role re-reads the log to resume, status code not lost, mid-flight work context details may be lost; assign a new session-id for that role in state.json); append to the log `Supervisor — repair: <role> <action>` (for format violations, `<action>` is "format correction", restating the current true status code, **never modifying historical entries**); reset `consecutive_failures` to 0.
+- `consecutive_failures` = 3: **escalated repair** — `fix_attempts++`; read the failure stdout/stderr + relevant log section to diagnose; repair runtime issues (missing file / state corruption / residual process); if the role's context is judged corrupted (e.g. session unusable), **hard restart** (prefer hard restart at a clean checkpoint `*_ING`, not mid-task; when `--resume` across many cycles slows noticeably, may proactively hard restart — the role re-reads the log to resume, status code not lost, mid-flight work context details may be lost; assign a new session-id for that role in state.json); append to the log `Supervisor — repair: <role> <action>` (**never modifying historical entries**); reset `consecutive_failures` to 0.
 - `fix_attempts` = 3 and this cycle still fails: **circuit-break** — set that role's `status=blocked` in state.json; append to the log `Supervisor — <role> BLOCKED: <reason>`; stop spawning it; keep monitoring other roles. **Do not notify the human.**
 
-**Successful cycle** (exit code 0 and a new entry from that role in the log): reset `consecutive_failures` to 0, `fix_attempts` to 0.
+**Successful cycle** (exit code 0, a new entry from that role in the log, and no content feedback triggered): reset `consecutive_failures` to 0, `fix_attempts` to 0.
 
 ## Long-Task Progress Audit
 
@@ -146,8 +152,9 @@ Boundary: only verify checkpoint authenticity, do not judge work quality (Review
 
 - All log writes use shell `cat >> {PROJECT_ROOT}/.pre/{PROJECT_NAME}/collaboration-log.md <<'EOF'` ... `EOF`; never use Write/Edit tools to write the log
 - Time is taken from `date +"%Y-%m-%d %H:%M"`
-- Control entry formats (all end with `Status: <status_code>`, see the collaboration log format reference; repair/circuit-break/resume/goals-change/install-skill/discover-non-whitelisted use the current unchanged status, shutdown uses `DONE`):
+- Control entry formats (all end with `Status: <status_code>`, see the collaboration log format reference; repair/content-feedback/circuit-break/resume/goals-change/install-skill/discover-non-whitelisted use the current unchanged status, shutdown uses `DONE`):
   - repair: `## [time] Supervisor — repair: <role> <action and reason>`, `Status: <current status code>`
+  - content feedback: `## [time] Supervisor — content feedback: <role> <issue>`, `Status: <current status code>`
   - circuit-break: `## [time] Supervisor — <role> BLOCKED: <reason>`, `Status: <current status code>`
   - shutdown: `## [time] Supervisor — project DONE, supervisor shutdown`, `Status: DONE`
   - resume: `## [time] Supervisor — resume after cron loss`, `Status: <current status code>`

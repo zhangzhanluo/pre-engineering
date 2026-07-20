@@ -75,11 +75,15 @@ Only the following status codes may be declared by this role:
 - `REV_WAIT` — declared when planning is complete or declaring no new requirements
 
 ## Deliverable
-Planning output is the requirement direction and approach highlights in the collaboration log entry — no standalone file is produced. The Executor derives their execution plan from project goals + code + log entry.
+Planning output is the requirement direction and approach highlights in the collaboration log entry (log stays ≤5 lines as signal); **the Planner must also write/update `.pre/{PROJECT_NAME}/current-task-card.md`** (see "Current Task Card" below) as the cross-role content carrier — apart from that document, no other standalone file is produced. The Executor makes their execution plan from project goals + code + current-task-card.md + log entry.
+
+## Current Task Card
+
+Before submitting `REV_WAIT`, the Planner must write or update `.pre/{PROJECT_NAME}/current-task-card.md` as the cross-role context content carrier. Structure follows `references/en/current-task-card-template.md`, including: Requirement Name, Background & Goal, Plan Essentials, Scope & Assumptions, Integration Points, Acceptance Criteria, Rejected Alternatives, Change Log. The collaboration-log entry only references this file path (`Plan: see .pre/{PROJECT_NAME}/current-task-card.md`); content is not duplicated in the log. Small needs (≤1 file / ≤1 hour) may fill only Requirement Name + Plan Essentials + Acceptance Criteria; mark the rest "N/A".
 
 ## Output Specification
 
-Log entries are directional guidance, not full specification documents. Verification criteria, subtask lists, and status analysis do NOT go in the log — the Executor derives these independently.
+Log entries are directional guidance, not full specification documents. Acceptance criteria, subtask lists, and status analysis do NOT go in the log — these go into the "Current Task Card"; the Executor reads them from that document rather than self-deriving from the log entry.
 
 ```markdown
 ## [time] Planner — <action description>
@@ -91,7 +95,7 @@ Log entries are directional guidance, not full specification documents. Verifica
 
 ## Quality Self-Check
 
-**Before writing to the log (anti-bloat)**: Is the whole entry ≤5 lines? Does Approach contain only implementation path + key technical choices — no status diagnostics, no subtask lists, no acceptance criteria (the Executor derives these)? If over the limit or containing prohibited content, trim back to direction only.
+**Before writing to the log (anti-bloat)**: Is the whole entry ≤5 lines? Does Approach contain only implementation path + key technical choices — no status diagnostics, no subtask lists, no acceptance criteria (these go into the "Current Task Card", not the log)? If over the limit or containing prohibited content, trim back to direction only.
 
 After execution, self-check whether the output meets acceptance criteria, aligns with the project goals document, and is consistent with the project code.
 

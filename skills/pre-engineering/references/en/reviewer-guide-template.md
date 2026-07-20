@@ -157,6 +157,11 @@ Check for conflicts between the three review dimensions:
 - Does simplicity optimization sacrifice necessary error handling?
 - Do new dependencies conflict with existing ones?
 
+## Task Card Review
+
+- **P0 task card review**: before reviewing deliverables, must first read `.pre/{PROJECT_NAME}/current-task-card.md` and verify against the acceptance criteria item by item; sub-standard output must be rejected — never silently pass; an empty or placeholder-only acceptance-criteria section ("none" / "TBD" / "see project goals") counts as a Planner violation — reject the requirement.
+- **Independent stop-loss (anti-circuit-breaker backfire)**: if output fails to meet the task card's acceptance criteria for N consecutive rounds (default 3), even before reaching 3 rejections, must mark "loop blockage" and revert to `PLN_WAIT`; when passing sub-standard output, the Reviewer must write "Pass (below standard)" with a reason — never silently forward.
+
 ## Three-Dimension Review Standards
 
 ### A. Planning Review (When Planner submits requirements)

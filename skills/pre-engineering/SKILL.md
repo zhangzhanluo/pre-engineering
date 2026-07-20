@@ -28,6 +28,7 @@ Set `lang` variable: `zh` or `en`. This determines template path and document fi
 |----------|-----------|-----------|
 | Project goals | 项目目标.md | project-goals.md |
 | Collaboration log | 协作日志.md | collaboration-log.md |
+| Current task card | 当前方案.md | current-task-card.md |
 | Planner guide | 规划者指导.md | planner-guide.md |
 | Executor guide | 执行者指导.md | executor-guide.md |
 | Reviewer guide | 审核者指导.md | reviewer-guide.md |
@@ -44,7 +45,11 @@ Set `project_name` variable from user input. All documents will be placed in `.p
 
 **Code location** (ask the user): whether code is local or remote.
 - Local → set `code_location=local`, code path = `{PROJECT_ROOT}`.
-- Remote → set `code_location=remote`, collect `{REMOTE_HOST}` + `{REMOTE_PATH}` (remote code path) + optional env script path (e.g. `~/env.sh`). Note: `.pre/` collaboration documents stay local at `{PROJECT_ROOT}`; only the code may be remote.
+- Remote → set `code_location=remote`, collect `{REMOTE_HOST}` + `{REMOTE_PATH}` (remote code path) + optional env script path (e.g. `~/env.sh`). Note: `.pre/` collaboration documents stay local at `{PROJECT_ROOT}`; only the code may be remote. **Code sovereignty is local** (#7): product code must live in the local repo (versioned via `git`/local VERSIONS); the remote is only an execution environment — the Executor must `rsync` remote outputs back to the local repo and commit locally (see Executor guide).
+
+**PRE fit-gate** (advisory, #1): before initializing PRE, run a 4-question self-check on the project — (a) can needs be tackled in independent granules? (b) how deep is the domain (hidden conventions)? (c) are there long-running tasks (training/deploy)? (d) is it exploratory (needs shift as you build)? If the total score is below threshold, suggest the user use a lighter flow instead of forcing the four-role PRE. Do not hard-block — just advise; the user decides.
+
+**Requirement grading & flow routing** (#3): not every need needs the full four-role cycle. Grade by the task card's granularity — **small** needs (≤1 file / ≤1 hour): single role, one pass, one log entry; **medium** needs: planning→execution→output-review (three steps); **large** needs: full four-role cycle. The Supervisor picks the flow from the granularity field in `.pre/{project_name}/{task_card_file}`. This lowers the protocol tax on small/medium needs.
 
 **Information Inference Rules**:
 - Auto-scan README.md, design docs, package.json, requirements.txt, etc. to extract overview and tech stack — this saves the user from repeating what's already in their project
@@ -55,7 +60,7 @@ After collection, refine requirements: remove duplicates, normalize descriptions
 
 ## Step 2: Confirm Draft & Generate Documents
 
-Synthesize collected information into a project goals document draft, present to user for final confirmation. Upon confirmation, generate all 6 core documents (goals, log, planner/executor/reviewer/supervisor guides).
+Synthesize collected information into a project goals document draft, present to user for final confirmation. Upon confirmation, generate all 7 core documents (goals, log, current task card, planner/executor/reviewer/supervisor guides).
 
 The user must be satisfied with the project goals document before proceeding — this document drives all subsequent agent work, so getting it right matters.
 
@@ -121,9 +126,10 @@ Note: `.pre/` collaboration document paths in templates stay `{PROJECT_ROOT}` (c
 
 After all documents are generated, the main agent (this session) becomes the Supervisor and starts the loop itself — no need to open 3 terminals.
 
-**Phase 1 — generate 6 documents** (Steps 0-2 above, now including the supervisor guide):
+**Phase 1 — generate 7 documents** (Steps 0-2 above, now including the supervisor guide and the current task card):
 - `.pre/{project_name}/{goals_file}`
 - `.pre/{project_name}/{log_file}` — initial `PLN_WAIT` entry
+- `.pre/{project_name}/{task_card_file}` — **NEW**, created as a stub (`# 当前方案` / `# Current Task Card` + a 变更记录 init line); the Planner fills it per-need before `REV_WAIT` (structure reference: `references/{lang}/当前方案模板.md` / `current-task-card-template.md`)
 - `.pre/{project_name}/{planner_guide}` / `{executor_guide}` / `{reviewer_guide}`
 - `.pre/{project_name}/{supervisor_guide}` — **NEW** (from `references/{lang}/监督者指导模板.md` / `supervisor-guide-template.md`)
 

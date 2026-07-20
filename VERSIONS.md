@@ -202,3 +202,16 @@ V20260715-1121 V1.0.4
 V20260715-1421 V1.0.5
 - Fix minor-2 (executor template line 80): deliverable-path parenthetical {PROJECT_ROOT} -> (local: {PROJECT_ROOT}; remote: {REMOTE_PATH}), aligned with line 23 remote-note style; remote scenarios now point deliverables to {REMOTE_PATH} instead of misleading local {PROJECT_ROOT}. Out of 07-10 spec B3 scope (B3 covered lines 21-23 only), closes the remote-deliverable theoretical gap noted in V1.0.6 root changelog
 - root=skill+2: root -> V1.0.7
+
+V20260720-1555 V1.1.0
+- Spec: docs/superpowers/specs/2026-07-20-pre-skill-revision-spec.md (dogfood PRE: plan→review→finalize). Version downgraded from major V2.0.0 to minor V1.1.0 — backward-compatible additive (no state-machine/log-mechanism/cron changes; old projects unaffected)
+- #2 Cross-role context channel (P0): add `current-task-card.md`/`当前方案.md` (8-section task card) as the 4th core info source; collaboration log stays ≤5-line signal only. New bilingual template files references/zh/当前方案模板.md + references/en/current-task-card-template.md. Planner writes it before REV_WAIT; Executor reads first; Reviewer audits against acceptance criteria; Supervisor read-only
+- #7 Code must be locally inspectable (P0): executor template requires remote outputs rsync'd back to local repo + local git commit/VERSIONS; test files exist locally even if training is remote; code sovereignty is local
+- #1 Fit-gate (P1): SKILL.md Step 1 adds a 4-question self-check (granule independence / domain depth / long tasks / exploratory); below threshold advises a light flow instead of forcing four roles
+- #5 Fix circuit-breaker backfire (P1): reviewer template adds independent stop-loss — N consecutive rounds (default 3) below task-card criteria → mark "loop blockage" → revert PLN_WAIT even without 3 rejections; passing sub-standard output must write "Pass (below standard)" with reason
+- #3 Granularity routing (P2): SKILL.md defines small/medium/large grading; supervisor picks flow from task-card granularity field, lowering protocol tax on small/medium needs
+- #4 Content quality vs runtime scheduling split (P3): supervisor template — format/quality violations no longer increment consecutive_failures or hard-restart; instead append a "content feedback" control entry + resume same session-id (no context loss); hard-restart reserved for runtime faults (non-zero exit/timeout/crash) only
+- #6 Long task uses progress.json (P4): executor writes .pre/{PROJECT_NAME}/progress.json during EXE_ING (task name/start/current step/total steps/ETA/log path); collaboration log records only START/END+result; supervisor spot-checks read progress.json not append log
+- Coherence fixes: planner template's old "no standalone file / Executor self-derives" lines (the root-cause #1 institutional source) updated to point to the task card (zh+en ×3 each); executor mermaid checkpoint node text synced to progress.json rule
+- Bilingual sync verified (zh/en section structure + placeholders symmetric); SKILL.md / 核心设计.md / CLAUDE.md联动
+- root=skill+2: root → V1.1.2; corresponds to root repo (gitcode) V1.1.2
